@@ -257,8 +257,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement);
 
     // refresh techniques
-    enforceExclusive(pathTechniqueSelectElement)
-    enforceExclusive(branchTechniqueSelectElement)
+    enforceExclusive(pathTechniqueSelectElement);
+    enforceExclusive(branchTechniqueSelectElement);
   });
 
   potencySelectElement.addEventListener('change',  () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement));
@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       minor3ResistanceSelectElement.parentElement.hidden = false;
     }
 
-    enforceExclusive(resistanceContainer)
+    enforceExclusive(resistanceContainer);
 
   });
   
