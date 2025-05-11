@@ -30,8 +30,8 @@ async function readCommon() {
 
 function populateClass(selectElement, classes) {
   if (!classes) {
-    selectElement.innerHTML = '<option value="">An error has occurred.</option>';
-    return false
+    selectElement.innerHTML = '<option value="">An error has occurred.</option>';;
+    return false;
   }
 
   selectElement.innerHTML = '<option value="not_selected">Not selected</option>';
@@ -42,13 +42,13 @@ function populateClass(selectElement, classes) {
     opt.textContent = className;
     selectElement.appendChild(opt);
   });
-  return true
+  return true;
 }
 
 function populateArmor(selectElement, commonData) {
   if (!commonData) {
     selectElement.innerHTML = '<option value="">An error has occurred.</option>';
-    return false
+    return false;
   }
 
   selectElement.innerHTML = '<option value="not_selected">Not selected</option>';
@@ -59,13 +59,13 @@ function populateArmor(selectElement, commonData) {
     opt.textContent = armorObject["Name"];
     selectElement.appendChild(opt);
   });
-  return true
+  return true;
 }
 
 function populateWeapon(selectElement, commonData, isMainHand) {
   if (!commonData) {
     selectElement.innerHTML = '<option value="">An error has occurred.</option>';
-    return false
+    return false;
   }
 
   selectElement.innerHTML = '<option value="not_selected">Not selected</option><hr>';
@@ -88,11 +88,11 @@ function populateWeapon(selectElement, commonData, isMainHand) {
         selectElement.appendChild(hr);
     }
   });
-  return true
+  return true;
 }
 
 function weaponConstraint(selectElement, offhandElement, commonData) {
-  const selected = selectElement.value
+  const selected = selectElement.value;
 
   if (selected == "not_selected") {
     return true;
@@ -105,7 +105,7 @@ function weaponConstraint(selectElement, offhandElement, commonData) {
   }
   else {
     offhandElement.hidden = false;
-    offhandElement.value = "not_selected"
+    offhandElement.value = "not_selected";
   }
 
 
@@ -164,18 +164,18 @@ function aptitudeConstraint(levelSelectElement, potencySelectElement, controlSel
     let currentPotency = parseInt(potencySelectElement.value);
     let currentControl = parseInt(controlSelectElement.value);
 
-    maxControl = currentLevel - currentPotency
+    maxControl = currentLevel - currentPotency;
 
-    controlSelectElement.max = maxControl >= 0? maxControl : 0
-    if (currentControl > controlSelectElement.max) controlSelectElement.value = controlSelectElement.max
+    controlSelectElement.max = maxControl >= 0? maxControl : 0;
+    if (currentControl > controlSelectElement.max) controlSelectElement.value = controlSelectElement.max;
     
     currentPotency = parseInt(potencySelectElement.value);
     currentControl = parseInt(controlSelectElement.value);
 
-    maxPotency = currentLevel - currentControl
+    maxPotency = currentLevel - currentControl;
 
-    potencySelectElement.max = maxPotency >= 0? maxPotency : 0
-    if (currentPotency > potencySelectElement.max) potencySelectElement.value = potencySelectElement.max
+    potencySelectElement.max = maxPotency >= 0? maxPotency : 0;
+    if (currentPotency > potencySelectElement.max) potencySelectElement.value = potencySelectElement.max;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -201,22 +201,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // populate armors
   const armorSelectElement = document.getElementById("armor_selection");
-  const isArmorPopulated = populateArmor(armorSelectElement, myCommon)
+  const isArmorPopulated = populateArmor(armorSelectElement, myCommon);
 
   // populate weapon set 1
   const mainWeapon1SelectElement = document.getElementById("main_hand_weapon_1");
   const offWeapon1SelectElement = document.getElementById("off_hand_weapon_1");
 
-  const isMainWeapon1Populated = populateWeapon(mainWeapon1SelectElement, myCommon, true)
-  const isOffWeapon1Populated = populateWeapon(offWeapon1SelectElement, myCommon, false)
+  const isMainWeapon1Populated = populateWeapon(mainWeapon1SelectElement, myCommon, true);
+  const isOffWeapon1Populated = populateWeapon(offWeapon1SelectElement, myCommon, false);
 
   // populate weapon set 2
 
   const mainWeapon2SelectElement = document.getElementById("main_hand_weapon_2");
   const offWeapon2SelectElement = document.getElementById("off_hand_weapon_2");
 
-  const isMainWeapon2Populated = populateWeapon(mainWeapon2SelectElement, myCommon, true)
-  const isOffWeapon2Populated = populateWeapon(offWeapon2SelectElement, myCommon, false)
+  const isMainWeapon2Populated = populateWeapon(mainWeapon2SelectElement, myCommon, true);
+  const isOffWeapon2Populated = populateWeapon(offWeapon2SelectElement, myCommon, false);
 
   // when level is changed
   levelSelectElement.addEventListener('change', () => {
@@ -227,13 +227,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTechniqueCount(branchTechniqueSelectElement, (currentLevel-1)/2+1, false);
 
     // change amount of potency and control
-    aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement)
-
-    // change precision
-    // TODO
-
-    // change resistances
-    // TODO
+    aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement);
   });
 
   potencySelectElement.addEventListener('change',  () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement));

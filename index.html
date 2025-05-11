@@ -18,6 +18,19 @@
 
         <div class="container-md col-md-6 mt-4 pt-4">
             <h1 class="text-center mb-4 w-100">Sigil of Uchma Character Creator</h1>
+            <hr class="row">
+
+            <div id="explanation_text">
+                <p>
+                    <i>Sigil of Uchma</i>  is an open source work-in-progress fantasy tabletop role playing game based on mythologies of medieval Central Asian societies.
+                </p>
+                <p>
+                    Rules of the game are described in <a href="https://sigil-test.tyghsh.cc" target="_blank">the website</a>. Have fun creating your character!
+                </p>
+            </div>
+
+            <hr class="row">
+            <h4 class="mb-4 w-100">Basic Information</h4>
 
             <div class="row mb-4">
                 <label for="name_selection" class="form-label">Character Name:</label>
@@ -34,11 +47,12 @@
                 <input id="level_selection" class="form-control w-25" min="1" max="10" type="number" value="1">
             </div>
 
-            <hr class="row mb-4">
+            <hr class="row">
+            <h4 class="mb-4 w-100">Class</h4>
             
             <div class="row mb-4">
                 <label for="path_selection" class="form-label">Choose your path:</label>
-                <select id="path_selection" class="form-control w-25">
+                <select id="path_selection" class="form-control w-50">
                     <option value="">Loading...</option>
                 </select>
             </div>
@@ -50,7 +64,7 @@
 
             <div class="row mb-4">
                 <label for="branch_selection" class="form-label">Choose your branch:</label>
-                <select id="branch_selection" class="form-control  w-25">
+                <select id="branch_selection" class="form-control  w-50">
                     <option value="">Loading...</option>
                 </select>
             </div>
@@ -60,7 +74,8 @@
                 <select id="branch_technique_selection_1" class="form-control mb-2" disabled></select>
             </div>
 
-            <hr class="row mb-4">
+            <hr class="row">
+            <h4 class="mb-4 w-100">Equipment</h4>
 
             <div class="row mb-4">
                 <label for="armor_selection" class="form-label">Choose your armor:</label>
@@ -89,8 +104,8 @@
                 </select>
             </div>
 
-
-            <hr class="row mb-4">
+            <hr class="row">
+            <h4 class="mb-4 w-100">Aptitudes</h4>
 
             <div class="row mb-4">
                 <label for="potency_selection" class="form-label">Potency:</label>
@@ -102,10 +117,28 @@
                 <input id="control_selection" class="form-control w-25" min="0" max="1" type="number" value="0">
             </div>
 
+            <hr class="row">
+            <h4 class="mb-4 w-100">Resistances</h4>
+
+
+            <br class="mb-4" />
+
             <div class="row justify-content-center mb-4">
                 <button id="submit_button" class="btn btn-success w-75">Create your character</button>
             </div>
 
+            <hr class="row">
+            <h4 id="result_content" class="mb-4 w-100">Result</h4>
+            <textarea class="w-100 mb-4" readonly>Result will be shown here.</textarea>
+
+            <hr class="row">
+
+            <div id="information" class="row text-center">
+                <p>
+                    Sigil of Uchma is licenced with CC BY-NC-SA 4.0. This website is under GPL-3.0.<br />
+                    Visit the <a href="https://github.com/TaygaHoshi/tt-project" target="_blank">GitHub repository</a>!
+                </p>
+            </div>
         </div>
     </body>
 
