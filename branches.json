@@ -1,0 +1,54 @@
+{
+    "Wildbond": {
+        "Techniques": [
+            "Distraction",
+            "Find",
+            "Go For Eyes",
+            "Grab and Drag",
+            "Lick Wounds"
+        ]
+    },
+    "Warwise": {
+        "Techniques": [
+            "Adapt to Environment",
+            "Disarm",
+            "Expose Weakness",
+            "Improved Maneuvering",
+            "Insight"
+        ]
+    },
+    "Iconcraft": {
+        "Techniques": [
+            "Affect Self",
+            "Banishing Ritual",
+            "Destructing Ritual",
+            "Dulling Ritual",
+            "Extend Ritual",
+            "Sharpening Ritual",
+            "Shrouding Ritual",
+            "Unbreaking Ritual"
+        ]
+    },
+    "Hunter": {
+        "Techniques": [
+            "Execute",
+            "Focused Preparation",
+            "Readiness",
+            "Sneak Attack",
+            "Weak Point"
+        ]
+    },
+    "Druid": {
+        "Techniques": [
+            "Earthquake",
+            "Growth",
+            "Landshape",
+            "Lightning",
+            "Metalskin",
+            "Rain",
+            "Burning Ground",
+            "Sprout",
+            "Unsteady Ground"
+        ]
+    }
+}

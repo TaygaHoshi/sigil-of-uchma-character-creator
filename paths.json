@@ -1,0 +1,52 @@
+{
+    "Warrior": {
+        "Techniques": [
+            "Crushing Charge",
+            "Defensive Strike",
+            "Double Opportunity",
+            "Extend Preparation",
+            "Graze",
+            "Hamstring",
+            "Reaching Attack",
+            "Tackle"
+        ]
+    },
+
+    "Sorcerer": {
+        "Techniques": [
+            "Absorption",
+            "Alteration",
+            "Call Chaos",
+            "Mark of Sacrifice",
+            "Purge Blessings",
+            "Spread Curses",
+            "Weaken Body"
+        ]
+    },
+
+    "Shaman": {
+        "Techniques": [
+            "Astral Travel",
+            "Clairvoyance",
+            "Cleanse",
+            "Divination",
+            "Fate Reversal",
+            "Guest Soul",
+            "Heal Creatures",
+            "Message",
+            "Protect Creature",
+            "Transfer Energy"
+        ]
+    },
+
+    "Bard": {
+        "Techniques": [
+            "Poem of Beauty",
+            "Poem of Brutishness",
+            "Poem of Humility",
+            "Poem of Fury",
+            "Poem of Freedom"
+        ]
+    }
+    
+}
