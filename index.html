@@ -18,6 +18,19 @@
 
         <div class="container-md col-md-6 mt-4 pt-4">
             <h1 class="text-center mb-4 w-100">Sigil of Uchma Character Creator</h1>
+            <hr class="row">
+
+            <div id="explanation_text">
+                <p>
+                    <i>Sigil of Uchma</i>  is an open source work-in-progress fantasy tabletop role playing game based on mythologies of medieval Central Asian societies.
+                </p>
+                <p>
+                    Rules of the game are described in <a href="https://sigil-test.tyghsh.cc" target="_blank">the website</a>. Have fun creating your character!
+                </p>
+            </div>
+
+            <hr class="row">
+            <h4 class="mb-4 w-100">Basic Information</h4>
 
             <div class="row mb-4">
                 <label for="name_selection" class="form-label">Character Name:</label>
@@ -34,11 +47,12 @@
                 <input id="level_selection" class="form-control w-25" min="1" max="10" type="number" value="1">
             </div>
 
-            <hr class="row mb-4">
+            <hr class="row">
+            <h4 class="mb-4 w-100">Class</h4>
             
             <div class="row mb-4">
                 <label for="path_selection" class="form-label">Choose your path:</label>
-                <select id="path_selection" class="form-control w-25">
+                <select id="path_selection" class="form-control w-50">
                     <option value="">Loading...</option>
                 </select>
             </div>
@@ -50,7 +64,7 @@
 
             <div class="row mb-4">
                 <label for="branch_selection" class="form-label">Choose your branch:</label>
-                <select id="branch_selection" class="form-control  w-25">
+                <select id="branch_selection" class="form-control  w-50">
                     <option value="">Loading...</option>
                 </select>
             </div>
@@ -60,7 +74,8 @@
                 <select id="branch_technique_selection_1" class="form-control mb-2" disabled></select>
             </div>
 
-            <hr class="row mb-4">
+            <hr class="row">
+            <h4 class="mb-4 w-100">Equipment</h4>
 
             <div class="row mb-4">
                 <label for="armor_selection" class="form-label">Choose your armor:</label>
@@ -89,8 +104,8 @@
                 </select>
             </div>
 
-
-            <hr class="row mb-4">
+            <hr class="row">
+            <h4 class="mb-4 w-100">Aptitudes</h4>
 
             <div class="row mb-4">
                 <label for="potency_selection" class="form-label">Potency:</label>
@@ -102,10 +117,80 @@
                 <input id="control_selection" class="form-control w-25" min="0" max="1" type="number" value="0">
             </div>
 
+            <hr class="row">
+            <h4 class="mb-4 w-100">Resistances</h4>
+
+            <div class="row mb-4">
+                <label for="major_or_3minors_selection" class="form-label">Major resistance:</label>
+                <select id="major_or_3minors_selection" class="form-control w-50">
+                    <option value="1_major_1_minor">Use a major and a minor resistance</option>
+                    <option value="3_minors">Use three minor resistances</option>
+                </select>
+            </div>
+            
+            <div id="resistance_container">
+                <div class="row mb-4">
+                    <label for="major_selection_1" class="form-label">Major resistance:</label>
+                    <select id="major_selection_1" class="form-control w-50">
+                        <option value="not_selected">Not selected</option>
+                        <option value="parry">Parry</option>
+                        <option value="warding">Warding</option>
+                        <option value="constitution">Constitution</option>
+                        <option value="evasion">Evasion</option>
+                    </select>
+                </div>
+
+                <div class="row mb-4">
+                    <label for="minor_selection_1" class="form-label">Minor resistance:</label>
+                    <select id="minor_selection_1" class="form-control w-50">
+                        <option value="not_selected">Not selected</option>
+                        <option value="parry">Parry</option>
+                        <option value="warding">Warding</option>
+                        <option value="constitution">Constitution</option>
+                        <option value="evasion">Evasion</option>
+                    </select>
+                </div>
+
+                <div class="row mb-4" hidden>
+                    <label for="minor_selection_2" class="form-label">Minor resistance:</label>
+                    <select id="minor_selection_2" class="form-control w-50">
+                        <option value="not_selected">Not selected</option>
+                        <option value="parry">Parry</option>
+                        <option value="warding">Warding</option>
+                        <option value="constitution">Constitution</option>
+                        <option value="evasion">Evasion</option>
+                    </select>
+                </div>
+
+                <div class="row mb-4" hidden>
+                    <label for="minor_selection_3" class="form-label">Minor resistance:</label>
+                    <select id="minor_selection_3" class="form-control w-50">
+                        <option value="not_selected">Not selected</option>
+                        <option value="parry">Parry</option>
+                        <option value="warding">Warding</option>
+                        <option value="constitution">Constitution</option>
+                        <option value="evasion">Evasion</option>
+                    </select>
+                </div>
+            </div>
+
+            <br class="mb-4" />
+
             <div class="row justify-content-center mb-4">
                 <button id="submit_button" class="btn btn-success w-75">Create your character</button>
             </div>
 
+            <hr class="row">
+            <h4 id="result_content" class="mb-4 w-100">Result</h4>
+            <textarea class="w-100 mb-4" readonly>Result will be shown here.</textarea>
+
+            <hr class="row">
+
+            <div id="information" class="row text-center">
+                <p>
+                    <a href="https://github.com/TaygaHoshi/tt-project" target="_blank">Sigil of Uchma</a> is licensed with CC BY-NC-SA 4.0. <a href="https://github.com/TaygaHoshi/tt-project" target="_blank">This website</a> is under GPL-3.0.<br />
+                </p>
+            </div>
         </div>
     </body>
 

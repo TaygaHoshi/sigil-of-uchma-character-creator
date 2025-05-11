@@ -1,2 +1,2 @@
-# sigil-of-uchma-character-creator
-A static website for creating sigil of uchma characters. 
+# Sigil of Uchma Character Creator
+A static website for creating characters for the tabletop RPG Sigil of Uchma. 
