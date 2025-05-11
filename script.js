@@ -325,6 +325,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       minor3ResistanceSelectElement.parentElement.hidden = false;
     }
 
+    enforceExclusive(resistanceContainer)
+
   });
   
   resistanceContainer.addEventListener('change', () => enforceExclusive(resistanceContainer));
