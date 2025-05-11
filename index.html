@@ -120,6 +120,59 @@
             <hr class="row">
             <h4 class="mb-4 w-100">Resistances</h4>
 
+            <div class="row mb-4">
+                <label for="major_or_3minors_selection" class="form-label">Major resistance:</label>
+                <select id="major_or_3minors_selection" class="form-control w-50">
+                    <option value="1_major_1_minor">Use a major and a minor resistance</option>
+                    <option value="3_minors">Use three minor resistances</option>
+                </select>
+            </div>
+            
+            <div id="resistance_container">
+                <div class="row mb-4">
+                    <label for="major_selection_1" class="form-label">Major resistance:</label>
+                    <select id="major_selection_1" class="form-control w-50">
+                        <option value="not_selected">Not selected</option>
+                        <option value="parry">Parry</option>
+                        <option value="warding">Warding</option>
+                        <option value="constitution">Constitution</option>
+                        <option value="evasion">Evasion</option>
+                    </select>
+                </div>
+
+                <div class="row mb-4">
+                    <label for="minor_selection_1" class="form-label">Minor resistance:</label>
+                    <select id="minor_selection_1" class="form-control w-50">
+                        <option value="not_selected">Not selected</option>
+                        <option value="parry">Parry</option>
+                        <option value="warding">Warding</option>
+                        <option value="constitution">Constitution</option>
+                        <option value="evasion">Evasion</option>
+                    </select>
+                </div>
+
+                <div class="row mb-4" hidden>
+                    <label for="minor_selection_2" class="form-label">Minor resistance:</label>
+                    <select id="minor_selection_2" class="form-control w-50">
+                        <option value="not_selected">Not selected</option>
+                        <option value="parry">Parry</option>
+                        <option value="warding">Warding</option>
+                        <option value="constitution">Constitution</option>
+                        <option value="evasion">Evasion</option>
+                    </select>
+                </div>
+
+                <div class="row mb-4" hidden>
+                    <label for="minor_selection_3" class="form-label">Minor resistance:</label>
+                    <select id="minor_selection_3" class="form-control w-50">
+                        <option value="not_selected">Not selected</option>
+                        <option value="parry">Parry</option>
+                        <option value="warding">Warding</option>
+                        <option value="constitution">Constitution</option>
+                        <option value="evasion">Evasion</option>
+                    </select>
+                </div>
+            </div>
 
             <br class="mb-4" />
 

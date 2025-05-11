@@ -113,7 +113,7 @@ function weaponConstraint(selectElement, offhandElement, commonData) {
 
 function enforceExclusive(container) {
   const selects = Array.from(
-    container.querySelectorAll('select[id*="_technique_selection_"]')
+    container.querySelectorAll('select[id*="_selection_"]')
   );
   // Gather all chosen techniques (ignore “not_selected”)
   const chosen = selects
@@ -235,6 +235,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   const isMainWeapon2Populated = populateWeapon(mainWeapon2SelectElement, myCommon, true);
   const isOffWeapon2Populated = populateWeapon(offWeapon2SelectElement, myCommon, false);
 
+  // resistances
+  const resistanceMajorMinorSelectElement = document.getElementById("major_or_3minors_selection");
+  const resistanceContainer = document.getElementById("resistance_container");
+  const majorResistanceSelectElement = document.getElementById("major_selection_1");
+  const minor1ResistanceSelectElement = document.getElementById("minor_selection_1");
+  const minor2ResistanceSelectElement = document.getElementById("minor_selection_2");
+  const minor3ResistanceSelectElement = document.getElementById("minor_selection_3");
+
+  // LOGIC
+
   // when level is changed
   levelSelectElement.addEventListener('change', () => {
     const currentLevel = parseInt(levelSelectElement.value);
@@ -281,8 +291,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // technique constraint
+
   pathTechniqueSelectElement.addEventListener('change', () => enforceExclusive(pathTechniqueSelectElement));
   branchTechniqueSelectElement.addEventListener('change', () => enforceExclusive(branchTechniqueSelectElement));
+
+  // resistance constraint
+  resistanceMajorMinorSelectElement.addEventListener('change', () => {
+    if (resistanceMajorMinorSelectElement.value == "1_major_1_minor") {
+      majorResistanceSelectElement.value = "not_selected";
+      majorResistanceSelectElement.parentElement.hidden = false;
+
+      minor1ResistanceSelectElement.value = "not_selected";
+      minor1ResistanceSelectElement.parentElement.hidden = false;
+
+      minor2ResistanceSelectElement.value = "not_selected";
+      minor2ResistanceSelectElement.parentElement.hidden = true;
+
+      minor3ResistanceSelectElement.value = "not_selected";
+      minor3ResistanceSelectElement.parentElement.hidden = true;
+    }
+    else {
+      majorResistanceSelectElement.value = "not_selected";
+      majorResistanceSelectElement.parentElement.hidden = true;
+
+      minor1ResistanceSelectElement.value = "not_selected";
+      minor1ResistanceSelectElement.parentElement.hidden = false;
+
+      minor2ResistanceSelectElement.value = "not_selected";
+      minor2ResistanceSelectElement.parentElement.hidden = false;
+
+      minor3ResistanceSelectElement.value = "not_selected";
+      minor3ResistanceSelectElement.parentElement.hidden = false;
+    }
+
+  });
+  
+  resistanceContainer.addEventListener('change', () => enforceExclusive(resistanceContainer));
 
   // weapon constraint
   mainWeapon1SelectElement.addEventListener('change', () => {
