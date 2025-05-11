@@ -111,6 +111,23 @@ function weaponConstraint(selectElement, offhandElement, commonData) {
 
 }
 
+function enforceExclusive(container) {
+  const selects = Array.from(
+    container.querySelectorAll('select[id*="_technique_selection_"]')
+  );
+  // Gather all chosen techniques (ignore “not_selected”)
+  const chosen = selects
+    .map(s => s.value)
+    .filter(v => v !== "not_selected");
+
+  selects.forEach(s => {
+    Array.from(s.options).forEach(opt => {
+      if (opt.value === "not_selected") return;
+      // Disable if it’s chosen somewhere else
+      opt.disabled = chosen.includes(opt.value) && s.value !== opt.value;
+    });
+  });
+}
 
 function populateTechnique(selectedElement, selectedClass, classData) {
 
@@ -228,6 +245,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // change amount of potency and control
     aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement);
+
+    // refresh techniques
+    enforceExclusive(pathTechniqueSelectElement)
+    enforceExclusive(branchTechniqueSelectElement)
   });
 
   potencySelectElement.addEventListener('change',  () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement));
@@ -259,6 +280,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       branchTechniqueSelectElement.hidden = true;
     }
   });
+
+  pathTechniqueSelectElement.addEventListener('change', () => enforceExclusive(pathTechniqueSelectElement));
+  branchTechniqueSelectElement.addEventListener('change', () => enforceExclusive(branchTechniqueSelectElement));
 
   // weapon constraint
   mainWeapon1SelectElement.addEventListener('change', () => {
