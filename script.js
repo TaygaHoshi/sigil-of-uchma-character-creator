@@ -73,19 +73,19 @@ function populateWeapon(selectElement, commonData, isMainHand) {
   commonData["Weapons"].forEach(weaponObject => {
     if (
       weaponObject["Name"] != "HORIZONTAL_RULE" &&
-      ((isMainHand && weaponObject["Type"] != "off_hand") || 
-      (!isMainHand && weaponObject["Type"] == "off_hand") ||
-      (!isMainHand && weaponObject["isLight"] == true))
+      ((isMainHand && weaponObject["Type"] != "off_hand") ||
+        (!isMainHand && weaponObject["Type"] == "off_hand") ||
+        (!isMainHand && weaponObject["isLight"] == true))
     ) {
-        const opt = document.createElement('option');
-        opt.value = weaponObject["Name"];
-        opt.textContent = weaponObject["Name"];
-        selectElement.appendChild(opt);
+      const opt = document.createElement('option');
+      opt.value = weaponObject["Name"];
+      opt.textContent = weaponObject["Name"];
+      selectElement.appendChild(opt);
     }
-    
+
     if (weaponObject["Name"] == "HORIZONTAL_RULE") {
-        const hr = document.createElement('hr');
-        selectElement.appendChild(hr);
+      const hr = document.createElement('hr');
+      selectElement.appendChild(hr);
     }
   });
   return true;
@@ -97,7 +97,7 @@ function weaponConstraint(selectElement, offhandElement, commonData) {
   if (selected == "not_selected") {
     return true;
   }
-  
+
   const result = commonData["Weapons"].find(item => item.Name === selected);
 
   if (result["Type"] == "two_hand") {
@@ -133,16 +133,16 @@ function populateTechnique(selectedElement, selectedClass, classData) {
 
   selectedElement.querySelectorAll('select[id*="_technique_selection_"]').forEach(select => {
 
-      select.innerHTML = '<option value="not_selected">Not selected</option>';
+    select.innerHTML = '<option value="not_selected">Not selected</option>';
 
-      classData[selectedClass]["Techniques"].forEach(techniqueName => {
-          const opt = document.createElement('option');
-          opt.value = techniqueName;
-          opt.textContent = techniqueName;
-          select.appendChild(opt);
-      });
+    classData[selectedClass]["Techniques"].forEach(techniqueName => {
+      const opt = document.createElement('option');
+      opt.value = techniqueName;
+      opt.textContent = techniqueName;
+      select.appendChild(opt);
+    });
 
-      select.disabled = false;
+    select.disabled = false;
   });
 }
 
@@ -154,7 +154,7 @@ function setTechniqueCount(container, newCount, isPath) {
   if (newCount > 5) {
     newCount = 5;
   }
-  
+
   // Capture its visibility and a static clone-list of its options
   const wasHidden = existingSelect.hidden;
   const optionClones = Array.from(existingSelect.options).map(opt => opt.cloneNode(true));
@@ -177,29 +177,56 @@ function setTechniqueCount(container, newCount, isPath) {
 }
 
 function aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement) {
-    const currentLevel = parseInt(levelSelectElement.value);
-    let currentPotency = parseInt(potencySelectElement.value);
-    let currentControl = parseInt(controlSelectElement.value);
+  const currentLevel = parseInt(levelSelectElement.value);
+  let currentPotency = parseInt(potencySelectElement.value);
+  let currentControl = parseInt(controlSelectElement.value);
 
-    maxControl = currentLevel - currentPotency;
+  maxControl = currentLevel - currentPotency;
 
-    controlSelectElement.max = maxControl >= 0? maxControl : 0;
-    if (currentControl > controlSelectElement.max) controlSelectElement.value = controlSelectElement.max;
-    
-    currentPotency = parseInt(potencySelectElement.value);
-    currentControl = parseInt(controlSelectElement.value);
+  controlSelectElement.max = maxControl >= 0 ? maxControl : 0;
+  if (currentControl > controlSelectElement.max) controlSelectElement.value = controlSelectElement.max;
 
-    maxPotency = currentLevel - currentControl;
+  currentPotency = parseInt(potencySelectElement.value);
+  currentControl = parseInt(controlSelectElement.value);
 
-    potencySelectElement.max = maxPotency >= 0? maxPotency : 0;
-    if (currentPotency > potencySelectElement.max) potencySelectElement.value = potencySelectElement.max;
+  maxPotency = currentLevel - currentControl;
+
+  potencySelectElement.max = maxPotency >= 0 ? maxPotency : 0;
+  if (currentPotency > potencySelectElement.max) potencySelectElement.value = potencySelectElement.max;
 }
+
+function encodeUnicodeToBase64(obj) {
+  const json = JSON.stringify(obj);
+  const compressed = pako.gzip(json);
+  const binary = String.fromCharCode(...compressed);
+  return btoa(binary);
+}
+
+function prepareResistance(base, name, major, minors) {
+  let bonus = 0;
+
+  if (name === major) bonus += 2;
+  bonus += minors.filter(minor => minor === name).length;
+
+  return base + bonus;
+}
+
+function getAvailableAbilities(abilities, myLevel) {
+  if (!Array.isArray(abilities)) return [];
+  return abilities
+    .filter(ability => ability.Level <= myLevel)
+    .map(ability => "Level " + ability.Level + " Ability: " + ability.Name);
+}
+
 
 document.addEventListener('DOMContentLoaded', async () => {
   // read and init
   const myPaths = await readPaths();
   const myBranches = await readBranches();
   const myCommon = await readCommon();
+
+  const characterNameSelectElement = document.getElementById("name_selection");
+  const playerNameSelectElement = document.getElementById("player_name_selection");
 
   const levelSelectElement = document.getElementById("level_selection");
 
@@ -248,10 +275,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // when level is changed
   levelSelectElement.addEventListener('change', () => {
     const currentLevel = parseInt(levelSelectElement.value);
-    
+
     // change amount of path and branch techniques
-    setTechniqueCount(pathTechniqueSelectElement, currentLevel/2+1, true);
-    setTechniqueCount(branchTechniqueSelectElement, (currentLevel-1)/2+1, false);
+    setTechniqueCount(pathTechniqueSelectElement, currentLevel / 2 + 1, true);
+    setTechniqueCount(branchTechniqueSelectElement, (currentLevel - 1) / 2 + 1, false);
 
     // change amount of potency and control
     aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement);
@@ -261,14 +288,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     enforceExclusive(branchTechniqueSelectElement);
   });
 
-  potencySelectElement.addEventListener('change',  () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement));
+  potencySelectElement.addEventListener('change', () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement));
 
-  controlSelectElement.addEventListener('change',  () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement));
+  controlSelectElement.addEventListener('change', () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement));
 
   // populate path techniques once selected
   pathSelectElement.addEventListener('change', () => {
     const selected = pathSelectElement.value;
-    
+
     if (selected != "not_selected") {
       populateTechnique(pathTechniqueSelectElement, selected, myPaths);
       pathTechniqueSelectElement.hidden = false;
@@ -281,7 +308,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // populate branch techniques once selected
   branchSelectElement.addEventListener('change', () => {
     const selected = branchSelectElement.value;
-    
+
     if (selected != "not_selected") {
       populateTechnique(branchTechniqueSelectElement, selected, myBranches);
       branchTechniqueSelectElement.hidden = false;
@@ -328,7 +355,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     enforceExclusive(resistanceContainer);
 
   });
-  
+
   resistanceContainer.addEventListener('change', () => enforceExclusive(resistanceContainer));
 
   // weapon constraint
@@ -339,4 +366,127 @@ document.addEventListener('DOMContentLoaded', async () => {
   mainWeapon2SelectElement.addEventListener('change', () => {
     weaponConstraint(mainWeapon2SelectElement, offWeapon2SelectElement, myCommon);
   });
+
+  document.getElementById("submit_button").addEventListener("click", async () => {
+    // get techniques
+    
+    // calculate values
+    const myLevel = parseInt(levelSelectElement.value);
+
+    const myPath = pathSelectElement.value;
+    const myBranch = branchSelectElement.value;
+
+    const myHealth = myPaths[myPath].Health;
+
+    const myEnergy = 6+myLevel*2 > 24 ? 24 : 6+myLevel*2;
+
+    //// calculate resistance
+    const resistanceBase = 4 + Math.floor((myLevel + 1) / 2);
+    const myMajor = majorResistanceSelectElement.value;
+    const myMinors = [
+      minor1ResistanceSelectElement.value,
+      minor2ResistanceSelectElement.value,
+      minor3ResistanceSelectElement.value,
+    ];
+
+    const resistanceNames = ["Parry", "Warding", "Constitution", "Evasion"];
+
+    const myResistances = Object.fromEntries(
+      resistanceNames.map(name => [name, prepareResistance(resistanceBase, name, myMajor, myMinors)])
+    );
+
+    // Gather all chosen techniques (ignore “not_selected”)
+    const pathTechniqueSelectors = Array.from(
+      pathTechniqueSelectElement.querySelectorAll('select[id*="_selection_"]')
+    );
+
+    const myPathTechniques = pathTechniqueSelectors
+      .map(s => s.value)
+      .filter(v => v !== "not_selected");
+
+    const branchTechniqueSelectors = Array.from(
+      branchTechniqueSelectElement.querySelectorAll('select[id*="_selection_"]')
+    );
+    
+    const myBranchTechniques = branchTechniqueSelectors
+      .map(s => s.value)
+      .filter(v => v !== "not_selected");
+
+    // Get abilities <= to my level
+    const myPathAbilities = getAvailableAbilities(myPaths[myPath].Abilities, myLevel);
+    const myBranchAbilities = getAvailableAbilities(myBranches[myBranch].Abilities, myLevel);
+
+    // get weapon set precisions
+    const precisionRollBase = Math.floor(myLevel/2);
+
+    const myMainWeapon1 = mainWeapon1SelectElement.value;
+    const myOffWeapon1 = offWeapon1SelectElement.value;
+    const myMainWeapon2 = mainWeapon2SelectElement.value;
+    const myOffWeapon2 = offWeapon2SelectElement.value;
+
+    const mw1obj = myCommon.Weapons.find(w => w.Name === myMainWeapon1);
+    const ow1obj = myCommon.Weapons.find(w => w.Name === myOffWeapon1);
+    const mw2obj = myCommon.Weapons.find(w => w.Name === myMainWeapon2);
+    const ow2obj = myCommon.Weapons.find(w => w.Name === myOffWeapon2);
+
+    let set1Precision = precisionRollBase + mw1obj.Precision;
+    set1Precision += myOffWeapon1 === "Charm" ? ow1obj.Precision : 0;
+
+    let set2Precision = precisionRollBase + mw2obj.Precision;
+    set1Precision += myOffWeapon2 === "Charm" ? ow2obj.Precision : 0;
+
+    // armor
+    const myArmor = armorSelectElement.value;
+    const armorObj = myCommon.Armors.find(w => w.Name === myArmor);
+
+    const myPArmor = armorObj.PArmor;
+    const myMArmor = armorObj.MArmor;
+
+    // initiative
+    const baseInitiative = 0;
+    const myInitiative = baseInitiative + armorObj.Initiative;
+
+    // movement speed
+    const baseMovementSpeed = 6;
+    const myMovementSpeed = baseMovementSpeed + armorObj.Speed;
+
+    // send character data
+    const characterData = {
+      name: characterNameSelectElement.value,
+      playerName: playerNameSelectElement.value,
+      health: myHealth,
+      energy: myEnergy,
+      path: myPath,
+      branch: myBranch,
+      level: levelSelectElement.value,
+      potency: potencySelectElement.value,
+      control: controlSelectElement.value,
+      resistances: myResistances,
+      armor: myArmor,
+      pArmor: myPArmor,
+      mArmor: myMArmor,
+      initiative: myInitiative,
+      movementSpeed: myMovementSpeed,
+      mainWeapon1: myMainWeapon1,
+      offWeapon1: myOffWeapon1,
+      weapon1Precision: set1Precision,
+      mainWeapon2: myMainWeapon2,
+      offWeapon2: myOffWeapon2,
+      weapon2Precision: set2Precision,
+      pathTechniques: myPathTechniques,
+      branchTechniques: myBranchTechniques,
+      pathAbilities: myPathAbilities,
+      branchAbilities: myBranchAbilities
+    };
+
+    // Serialize and encode the data
+    const jsonString = JSON.stringify(characterData);
+    const base64String = encodeUnicodeToBase64(jsonString);
+
+    // Construct the shareable URL
+    const shareableURL = `output.html?q=${encodeURIComponent(base64String)}`;
+
+    // Redirect to the shareable URL
+    window.location.href = shareableURL;
+  })
 });

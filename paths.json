@@ -1,6 +1,8 @@
 {
     "Warrior": {
+        "Health": 80,
         "Techniques": [
+            "Brutal Attack",
             "Crushing Charge",
             "Defensive Strike",
             "Double Opportunity",
@@ -9,10 +11,33 @@
             "Hamstring",
             "Reaching Attack",
             "Tackle"
+        ],
+        "Abilities": [
+            {
+                "Level": 1,
+                "Name": "Critical Training"
+            },
+            {
+                "Level": 3,
+                "Name": "Weapon Expertise"
+            },
+            {
+                "Level": 5,
+                "Name": "Keen Rejuvenation"
+            },
+            {
+                "Level": 7,
+                "Name": "Armor Expertise"
+            },
+            {
+                "Level": 10,
+                "Name": "Veteran Combatant"
+            }
         ]
     },
 
     "Sorcerer": {
+        "Health": 60,
         "Techniques": [
             "Absorption",
             "Alteration",
@@ -21,10 +46,29 @@
             "Purge Blessings",
             "Spread Curses",
             "Weaken Body"
+        ],
+        "Abilities": [
+            {
+                "Level": 1,
+                "Name": "Boon of Underworld"
+            },
+            {
+                "Level": 3,
+                "Name": "Equivalent Exchange"
+            },
+            {
+                "Level": 5,
+                "Name": "Blood is Power"
+            },
+            {
+                "Level": 7,
+                "Name": "Death's Edge"
+            }
         ]
     },
 
     "Shaman": {
+        "Health": 60,
         "Techniques": [
             "Astral Travel",
             "Clairvoyance",
@@ -36,16 +80,57 @@
             "Message",
             "Protect Creature",
             "Transfer Energy"
+        ],
+        "Abilities": [
+            {
+                "Level": 1,
+                "Name": "Passage"
+            },
+            {
+                "Level": 3,
+                "Name": "Grant Boon"
+            },
+            {
+                "Level": 5,
+                "Name": "Induce"
+            }
         ]
     },
 
     "Bard": {
+        "Health": 70,
         "Techniques": [
             "Poem of Beauty",
             "Poem of Brutishness",
             "Poem of Humility",
             "Poem of Fury",
             "Poem of Freedom"
+        ],
+        "Abilities": [
+            {
+                "Level": 1,
+                "Name": "Echo"
+            },
+            {
+                "Level": 1,
+                "Name": "Magical Poetry"
+            },
+            {
+                "Level": 3,
+                "Name": "In Rhythm"
+            },
+            {
+                "Level": 5,
+                "Name": "Resonance"
+            },
+            {
+                "Level": 7,
+                "Name": "Duet"
+            },
+            {
+                "Level": 10,
+                "Name": "Fade Out"
+            }
         ]
     }
     
