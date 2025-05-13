@@ -9,11 +9,19 @@ function printWeapons(mainW, offW) {
     return offW != "not_selected" ? mainW + " | " + offW : mainW;
 }
 
-function printTechniques(techniqueArray) {
+function printAbilities(abilityArray, isTechnique) {
     let result = "";
 
-    techniqueArray.forEach(element => {
-        result += '<tr><td colspan="4">Technique: ' + element + '</td></tr>';
+    let myString = "";
+
+    abilityArray.forEach(element => {
+        myString = '<tr><td colspan="4">';
+
+        myString += isTechnique ? "Technique: " + element : element
+
+        myString += '</td></tr>';
+
+        result += myString;
     });
 
     return result
@@ -32,7 +40,16 @@ function displayCharacter(characterData) {
     document.getElementById('characterHealth').innerHTML = "<b>Health:</b> " + characterData.health;
     document.getElementById('characterEnergy').innerHTML = "<b>Energy:</b> " + characterData.energy;
 
+    document.getElementById('characterPotency').innerHTML = "<b>Potency:</b> " + characterData.potency;
+    document.getElementById('characterControl').innerHTML = "<b>Control:</b> " + characterData.control;
+
+    document.getElementById('characterSpeed').innerHTML = "<b>Movement:</b> " + characterData.movementSpeed + " meters";
+    document.getElementById('characterInitiative').innerHTML = "<b>Initiative:</b> " + characterData.initiative;
     
+    // armor
+    document.getElementById('characterArmor').innerHTML = "<b>Armor Type:</b> " + characterData.armor;
+    document.getElementById('characterPArmor').innerHTML = "<b>Physical Armor:</b> " + characterData.pArmor;
+    document.getElementById('characterMArmor').innerHTML = "<b>Magical Armor:</b> " + characterData.mArmor;
 
     // resistances
     document.getElementById('characterParry').innerHTML = "<b>Parry:</b> " + characterData.resistances.Parry;
@@ -42,11 +59,19 @@ function displayCharacter(characterData) {
 
     // weapons
     document.getElementById('characterWeapons1').innerHTML = printWeapons(characterData.mainWeapon1, characterData.offWeapon1);
-    document.getElementById('characterWeapons2').innerHTML = printWeapons(characterData.mainWeapon2, characterData.offWeapon2);
+    document.getElementById('characterPrecision1').innerHTML = "<b>Precision Roll:</b> d10 + " + characterData.weapon1Precision;
     
+    document.getElementById('characterWeapons2').innerHTML = printWeapons(characterData.mainWeapon2, characterData.offWeapon2);
+    document.getElementById('characterPrecision2').innerHTML = "<b>Precision Roll:</b> d10 + " + characterData.weapon2Precision;
+
+    // abilities
+    document.getElementById('characterPathAbilities').innerHTML = printAbilities(characterData.pathAbilities, false);
+    document.getElementById('characterBranchAbilities').innerHTML = printAbilities(characterData.branchAbilities, false);
+
+
     // techniques
-    document.getElementById('characterPathTechniques').innerHTML = printTechniques(characterData.pathTechniques);
-    document.getElementById('characterBranchTechniques').innerHTML = printTechniques(characterData.branchTechniques);
+    document.getElementById('characterPathTechniques').innerHTML = printAbilities(characterData.pathTechniques, true);
+    document.getElementById('characterBranchTechniques').innerHTML = printAbilities(characterData.branchTechniques, true);
 }
 
 window.addEventListener('DOMContentLoaded', () => {

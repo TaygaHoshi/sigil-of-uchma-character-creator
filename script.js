@@ -211,6 +211,13 @@ function prepareResistance(base, name, major, minors) {
   return base + bonus;
 }
 
+function getAvailableAbilities(abilities, myLevel) {
+  if (!Array.isArray(abilities)) return [];
+  return abilities
+    .filter(ability => ability.Level <= myLevel)
+    .map(ability => "Level " + ability.Level + " Ability: " + ability.Name);
+}
+
 
 document.addEventListener('DOMContentLoaded', async () => {
   // read and init
@@ -366,10 +373,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // calculate values
     const myLevel = parseInt(levelSelectElement.value);
 
-    const myHealth = myPaths[pathSelectElement.value].Health;
+    const myPath = pathSelectElement.value;
+    const myBranch = branchSelectElement.value;
 
-    console.log("Path select element:" + pathSelectElement.value);
-    console.log("Health:" + myHealth);
+    const myHealth = myPaths[myPath].Health;
 
     const myEnergy = 6+myLevel*2 > 24 ? 24 : 6+myLevel*2;
 
@@ -388,12 +395,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       resistanceNames.map(name => [name, prepareResistance(resistanceBase, name, myMajor, myMinors)])
     );
 
-    // gather techniques
+    // Gather all chosen techniques (ignore “not_selected”)
     const pathTechniqueSelectors = Array.from(
       pathTechniqueSelectElement.querySelectorAll('select[id*="_selection_"]')
     );
 
-    // Gather all chosen techniques (ignore “not_selected”)
     const myPathTechniques = pathTechniqueSelectors
       .map(s => s.value)
       .filter(v => v !== "not_selected");
@@ -406,22 +412,71 @@ document.addEventListener('DOMContentLoaded', async () => {
       .map(s => s.value)
       .filter(v => v !== "not_selected");
 
+    // Get abilities <= to my level
+    const myPathAbilities = getAvailableAbilities(myPaths[myPath].Abilities, myLevel);
+    const myBranchAbilities = getAvailableAbilities(myBranches[myBranch].Abilities, myLevel);
+
+    // get weapon set precisions
+    const precisionRollBase = Math.floor(myLevel/2);
+
+    const myMainWeapon1 = mainWeapon1SelectElement.value;
+    const myOffWeapon1 = offWeapon1SelectElement.value;
+    const myMainWeapon2 = mainWeapon2SelectElement.value;
+    const myOffWeapon2 = offWeapon2SelectElement.value;
+
+    const mw1obj = myCommon.Weapons.find(w => w.Name === myMainWeapon1);
+    const ow1obj = myCommon.Weapons.find(w => w.Name === myOffWeapon1);
+    const mw2obj = myCommon.Weapons.find(w => w.Name === myMainWeapon2);
+    const ow2obj = myCommon.Weapons.find(w => w.Name === myOffWeapon2);
+
+    let set1Precision = precisionRollBase + mw1obj.Precision;
+    set1Precision += myOffWeapon1 === "Charm" ? ow1obj.Precision : 0;
+
+    let set2Precision = precisionRollBase + mw2obj.Precision;
+    set1Precision += myOffWeapon2 === "Charm" ? ow2obj.Precision : 0;
+
+    // armor
+    const myArmor = armorSelectElement.value;
+    const armorObj = myCommon.Armors.find(w => w.Name === myArmor);
+
+    const myPArmor = armorObj.PArmor;
+    const myMArmor = armorObj.MArmor;
+
+    // initiative
+    const baseInitiative = 0;
+    const myInitiative = baseInitiative + armorObj.Initiative;
+
+    // movement speed
+    const baseMovementSpeed = 6;
+    const myMovementSpeed = baseMovementSpeed + armorObj.Speed;
+
     // send character data
     const characterData = {
       name: characterNameSelectElement.value,
       playerName: playerNameSelectElement.value,
       health: myHealth,
       energy: myEnergy,
-      path: pathSelectElement.value,
-      branch: branchSelectElement.value,
+      path: myPath,
+      branch: myBranch,
       level: levelSelectElement.value,
+      potency: potencySelectElement.value,
+      control: controlSelectElement.value,
       resistances: myResistances,
-      mainWeapon1: mainWeapon1SelectElement.value,
-      offWeapon1: offWeapon1SelectElement.value,
-      mainWeapon2: mainWeapon2SelectElement.value,
-      offWeapon2: offWeapon2SelectElement.value,
+      armor: myArmor,
+      pArmor: myPArmor,
+      mArmor: myMArmor,
+      initiative: myInitiative,
+      movementSpeed: myMovementSpeed,
+      mainWeapon1: myMainWeapon1,
+      offWeapon1: myOffWeapon1,
+      weapon1Precision: set1Precision,
+      mainWeapon2: myMainWeapon2,
+      offWeapon2: myOffWeapon2,
+      weapon2Precision: set2Precision,
       pathTechniques: myPathTechniques,
-      branchTechniques: myBranchTechniques 
+      branchTechniques: myBranchTechniques,
+      pathAbilities: myPathAbilities,
+      branchAbilities: myBranchAbilities
     };
 
     // Serialize and encode the data

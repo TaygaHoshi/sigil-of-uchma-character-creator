@@ -2,6 +2,7 @@
     "Warrior": {
         "Health": 80,
         "Techniques": [
+            "Brutal Attack",
             "Crushing Charge",
             "Defensive Strike",
             "Double Opportunity",
@@ -10,6 +11,28 @@
             "Hamstring",
             "Reaching Attack",
             "Tackle"
+        ],
+        "Abilities": [
+            {
+                "Level": 1,
+                "Name": "Critical Training"
+            },
+            {
+                "Level": 3,
+                "Name": "Weapon Expertise"
+            },
+            {
+                "Level": 5,
+                "Name": "Keen Rejuvenation"
+            },
+            {
+                "Level": 7,
+                "Name": "Armor Expertise"
+            },
+            {
+                "Level": 10,
+                "Name": "Veteran Combatant"
+            }
         ]
     },
 
@@ -23,6 +46,24 @@
             "Purge Blessings",
             "Spread Curses",
             "Weaken Body"
+        ],
+        "Abilities": [
+            {
+                "Level": 1,
+                "Name": "Boon of Underworld"
+            },
+            {
+                "Level": 3,
+                "Name": "Equivalent Exchange"
+            },
+            {
+                "Level": 5,
+                "Name": "Blood is Power"
+            },
+            {
+                "Level": 7,
+                "Name": "Death's Edge"
+            }
         ]
     },
 
@@ -39,6 +80,20 @@
             "Message",
             "Protect Creature",
             "Transfer Energy"
+        ],
+        "Abilities": [
+            {
+                "Level": 1,
+                "Name": "Passage"
+            },
+            {
+                "Level": 3,
+                "Name": "Grant Boon"
+            },
+            {
+                "Level": 5,
+                "Name": "Induce"
+            }
         ]
     },
 
@@ -50,6 +105,32 @@
             "Poem of Humility",
             "Poem of Fury",
             "Poem of Freedom"
+        ],
+        "Abilities": [
+            {
+                "Level": 1,
+                "Name": "Echo"
+            },
+            {
+                "Level": 1,
+                "Name": "Magical Poetry"
+            },
+            {
+                "Level": 3,
+                "Name": "In Rhythm"
+            },
+            {
+                "Level": 5,
+                "Name": "Resonance"
+            },
+            {
+                "Level": 7,
+                "Name": "Duet"
+            },
+            {
+                "Level": 10,
+                "Name": "Fade Out"
+            }
         ]
     }
     

@@ -6,6 +6,12 @@
             "Go For Eyes",
             "Grab and Drag",
             "Lick Wounds"
+        ],
+        "Abilities": [
+            {
+                "Level": 1,
+                "Name": "Call Pet"
+            }
         ]
     },
     "Warwise": {
@@ -15,6 +21,16 @@
             "Expose Weakness",
             "Improved Maneuvering",
             "Insight"
+        ],
+        "Abilities": [
+            {
+                "Level": 1,
+                "Name": "Battle Overseer"
+            },
+            {
+                "Level": 1,
+                "Name": "Backup Plan"
+            }
         ]
     },
     "Iconcraft": {
@@ -27,15 +43,35 @@
             "Sharpening Ritual",
             "Shrouding Ritual",
             "Unbreaking Ritual"
+        ],
+        "Abilities": [
+            {
+                "Level": 1,
+                "Name": "Totem"
+            },
+            {
+                "Level": 1,
+                "Name": "Source of Power"
+            },
+            {
+                "Level": 1,
+                "Name": "Ritual Casting"
+            }
         ]
     },
     "Hunter": {
         "Techniques": [
+            "Break Armor",
             "Execute",
-            "Focused Preparation",
             "Readiness",
             "Sneak Attack",
             "Weak Point"
+        ],
+        "Abilities": [
+            {
+                "Level": 1,
+                "Name": "Choose Prey"
+            }
         ]
     },
     "Druid": {
@@ -49,6 +85,12 @@
             "Burning Ground",
             "Sprout",
             "Unsteady Ground"
+        ],
+        "Abilities": [
+            {
+                "Level": 1,
+                "Name": "Element-enveloped"
+            }
         ]
     }
 }
