@@ -73,19 +73,19 @@ function populateWeapon(selectElement, commonData, isMainHand) {
   commonData["Weapons"].forEach(weaponObject => {
     if (
       weaponObject["Name"] != "HORIZONTAL_RULE" &&
-      ((isMainHand && weaponObject["Type"] != "off_hand") || 
-      (!isMainHand && weaponObject["Type"] == "off_hand") ||
-      (!isMainHand && weaponObject["isLight"] == true))
+      ((isMainHand && weaponObject["Type"] != "off_hand") ||
+        (!isMainHand && weaponObject["Type"] == "off_hand") ||
+        (!isMainHand && weaponObject["isLight"] == true))
     ) {
-        const opt = document.createElement('option');
-        opt.value = weaponObject["Name"];
-        opt.textContent = weaponObject["Name"];
-        selectElement.appendChild(opt);
+      const opt = document.createElement('option');
+      opt.value = weaponObject["Name"];
+      opt.textContent = weaponObject["Name"];
+      selectElement.appendChild(opt);
     }
-    
+
     if (weaponObject["Name"] == "HORIZONTAL_RULE") {
-        const hr = document.createElement('hr');
-        selectElement.appendChild(hr);
+      const hr = document.createElement('hr');
+      selectElement.appendChild(hr);
     }
   });
   return true;
@@ -97,7 +97,7 @@ function weaponConstraint(selectElement, offhandElement, commonData) {
   if (selected == "not_selected") {
     return true;
   }
-  
+
   const result = commonData["Weapons"].find(item => item.Name === selected);
 
   if (result["Type"] == "two_hand") {
@@ -133,16 +133,16 @@ function populateTechnique(selectedElement, selectedClass, classData) {
 
   selectedElement.querySelectorAll('select[id*="_technique_selection_"]').forEach(select => {
 
-      select.innerHTML = '<option value="not_selected">Not selected</option>';
+    select.innerHTML = '<option value="not_selected">Not selected</option>';
 
-      classData[selectedClass]["Techniques"].forEach(techniqueName => {
-          const opt = document.createElement('option');
-          opt.value = techniqueName;
-          opt.textContent = techniqueName;
-          select.appendChild(opt);
-      });
+    classData[selectedClass]["Techniques"].forEach(techniqueName => {
+      const opt = document.createElement('option');
+      opt.value = techniqueName;
+      opt.textContent = techniqueName;
+      select.appendChild(opt);
+    });
 
-      select.disabled = false;
+    select.disabled = false;
   });
 }
 
@@ -154,7 +154,7 @@ function setTechniqueCount(container, newCount, isPath) {
   if (newCount > 5) {
     newCount = 5;
   }
-  
+
   // Capture its visibility and a static clone-list of its options
   const wasHidden = existingSelect.hidden;
   const optionClones = Array.from(existingSelect.options).map(opt => opt.cloneNode(true));
@@ -177,29 +177,49 @@ function setTechniqueCount(container, newCount, isPath) {
 }
 
 function aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement) {
-    const currentLevel = parseInt(levelSelectElement.value);
-    let currentPotency = parseInt(potencySelectElement.value);
-    let currentControl = parseInt(controlSelectElement.value);
+  const currentLevel = parseInt(levelSelectElement.value);
+  let currentPotency = parseInt(potencySelectElement.value);
+  let currentControl = parseInt(controlSelectElement.value);
 
-    maxControl = currentLevel - currentPotency;
+  maxControl = currentLevel - currentPotency;
 
-    controlSelectElement.max = maxControl >= 0? maxControl : 0;
-    if (currentControl > controlSelectElement.max) controlSelectElement.value = controlSelectElement.max;
-    
-    currentPotency = parseInt(potencySelectElement.value);
-    currentControl = parseInt(controlSelectElement.value);
+  controlSelectElement.max = maxControl >= 0 ? maxControl : 0;
+  if (currentControl > controlSelectElement.max) controlSelectElement.value = controlSelectElement.max;
 
-    maxPotency = currentLevel - currentControl;
+  currentPotency = parseInt(potencySelectElement.value);
+  currentControl = parseInt(controlSelectElement.value);
 
-    potencySelectElement.max = maxPotency >= 0? maxPotency : 0;
-    if (currentPotency > potencySelectElement.max) potencySelectElement.value = potencySelectElement.max;
+  maxPotency = currentLevel - currentControl;
+
+  potencySelectElement.max = maxPotency >= 0 ? maxPotency : 0;
+  if (currentPotency > potencySelectElement.max) potencySelectElement.value = potencySelectElement.max;
 }
+
+function encodeUnicodeToBase64(obj) {
+  const json = JSON.stringify(obj);
+  const compressed = pako.gzip(json);
+  const binary = String.fromCharCode(...compressed);
+  return btoa(binary);
+}
+
+function prepareResistance(base, name, major, minors) {
+  let bonus = 0;
+
+  if (name === major) bonus += 2;
+  bonus += minors.filter(minor => minor === name).length;
+
+  return base + bonus;
+}
+
 
 document.addEventListener('DOMContentLoaded', async () => {
   // read and init
   const myPaths = await readPaths();
   const myBranches = await readBranches();
   const myCommon = await readCommon();
+
+  const characterNameSelectElement = document.getElementById("name_selection");
+  const playerNameSelectElement = document.getElementById("player_name_selection");
 
   const levelSelectElement = document.getElementById("level_selection");
 
@@ -248,10 +268,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // when level is changed
   levelSelectElement.addEventListener('change', () => {
     const currentLevel = parseInt(levelSelectElement.value);
-    
+
     // change amount of path and branch techniques
-    setTechniqueCount(pathTechniqueSelectElement, currentLevel/2+1, true);
-    setTechniqueCount(branchTechniqueSelectElement, (currentLevel-1)/2+1, false);
+    setTechniqueCount(pathTechniqueSelectElement, currentLevel / 2 + 1, true);
+    setTechniqueCount(branchTechniqueSelectElement, (currentLevel - 1) / 2 + 1, false);
 
     // change amount of potency and control
     aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement);
@@ -261,14 +281,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     enforceExclusive(branchTechniqueSelectElement);
   });
 
-  potencySelectElement.addEventListener('change',  () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement));
+  potencySelectElement.addEventListener('change', () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement));
 
-  controlSelectElement.addEventListener('change',  () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement));
+  controlSelectElement.addEventListener('change', () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement));
 
   // populate path techniques once selected
   pathSelectElement.addEventListener('change', () => {
     const selected = pathSelectElement.value;
-    
+
     if (selected != "not_selected") {
       populateTechnique(pathTechniqueSelectElement, selected, myPaths);
       pathTechniqueSelectElement.hidden = false;
@@ -281,7 +301,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // populate branch techniques once selected
   branchSelectElement.addEventListener('change', () => {
     const selected = branchSelectElement.value;
-    
+
     if (selected != "not_selected") {
       populateTechnique(branchTechniqueSelectElement, selected, myBranches);
       branchTechniqueSelectElement.hidden = false;
@@ -328,7 +348,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     enforceExclusive(resistanceContainer);
 
   });
-  
+
   resistanceContainer.addEventListener('change', () => enforceExclusive(resistanceContainer));
 
   // weapon constraint
@@ -339,4 +359,79 @@ document.addEventListener('DOMContentLoaded', async () => {
   mainWeapon2SelectElement.addEventListener('change', () => {
     weaponConstraint(mainWeapon2SelectElement, offWeapon2SelectElement, myCommon);
   });
+
+  document.getElementById("submit_button").addEventListener("click", async () => {
+    // get techniques
+    
+    // calculate values
+    const myLevel = parseInt(levelSelectElement.value);
+
+    const myHealth = myPaths[pathSelectElement.value].Health;
+
+    console.log("Path select element:" + pathSelectElement.value);
+    console.log("Health:" + myHealth);
+
+    const myEnergy = 6+myLevel*2 > 24 ? 24 : 6+myLevel*2;
+
+    //// calculate resistance
+    const resistanceBase = 4 + Math.floor((myLevel + 1) / 2);
+    const myMajor = majorResistanceSelectElement.value;
+    const myMinors = [
+      minor1ResistanceSelectElement.value,
+      minor2ResistanceSelectElement.value,
+      minor3ResistanceSelectElement.value,
+    ];
+
+    const resistanceNames = ["Parry", "Warding", "Constitution", "Evasion"];
+
+    const myResistances = Object.fromEntries(
+      resistanceNames.map(name => [name, prepareResistance(resistanceBase, name, myMajor, myMinors)])
+    );
+
+    // gather techniques
+    const pathTechniqueSelectors = Array.from(
+      pathTechniqueSelectElement.querySelectorAll('select[id*="_selection_"]')
+    );
+
+    // Gather all chosen techniques (ignore “not_selected”)
+    const myPathTechniques = pathTechniqueSelectors
+      .map(s => s.value)
+      .filter(v => v !== "not_selected");
+
+    const branchTechniqueSelectors = Array.from(
+      branchTechniqueSelectElement.querySelectorAll('select[id*="_selection_"]')
+    );
+    
+    const myBranchTechniques = branchTechniqueSelectors
+      .map(s => s.value)
+      .filter(v => v !== "not_selected");
+
+    // send character data
+    const characterData = {
+      name: characterNameSelectElement.value,
+      playerName: playerNameSelectElement.value,
+      health: myHealth,
+      energy: myEnergy,
+      path: pathSelectElement.value,
+      branch: branchSelectElement.value,
+      level: levelSelectElement.value,
+      resistances: myResistances,
+      mainWeapon1: mainWeapon1SelectElement.value,
+      offWeapon1: offWeapon1SelectElement.value,
+      mainWeapon2: mainWeapon2SelectElement.value,
+      offWeapon2: offWeapon2SelectElement.value,
+      pathTechniques: myPathTechniques,
+      branchTechniques: myBranchTechniques 
+    };
+
+    // Serialize and encode the data
+    const jsonString = JSON.stringify(characterData);
+    const base64String = encodeUnicodeToBase64(jsonString);
+
+    // Construct the shareable URL
+    const shareableURL = `output.html?q=${encodeURIComponent(base64String)}`;
+
+    // Redirect to the shareable URL
+    window.location.href = shareableURL;
+  })
 });
