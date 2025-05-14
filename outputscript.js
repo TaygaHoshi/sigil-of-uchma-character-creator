@@ -78,11 +78,17 @@ window.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     const base64String = params.get('q');
 
-  document.getElementById("copyButton").addEventListener("click", () => {
-    navigator.clipboard.writeText("https://sigil-create.tyghsh.cc/output.html?q=" + base64String)
-      .then(() => alert("Copied the share link."))
-      .catch(err => alert("Failed to copy the share link."));
-  });
+    document.getElementById("copyButton").addEventListener("click", () => {
+        const qRaw = new URLSearchParams(window.location.search).get('q');
+        const qReEncoded = encodeURIComponent(qRaw);  // encodes /, +, =, etc.
+        const finalUrl = `${location.origin}${location.pathname}?q=${qReEncoded}`;
+
+        console.log(finalUrl);
+
+        navigator.clipboard.writeText(finalUrl)
+        .then(() => alert("Copied the share link."))
+        .catch(() => alert("Failed to copy the share link."));
+    });
 
     if (base64String) {
         try {
