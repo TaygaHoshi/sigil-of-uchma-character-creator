@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     set1Precision += myOffWeapon1 === "Charm" ? ow1obj.Precision : 0;
 
     let set2Precision = precisionRollBase + mw2obj.Precision;
-    set1Precision += myOffWeapon2 === "Charm" ? ow2obj.Precision : 0;
+    set2Precision += myOffWeapon2 === "Charm" ? ow2obj.Precision : 0;
 
     // armor
     const myArmor = armorSelectElement.value;
