@@ -16,7 +16,8 @@
     },
     "Warwise": {
         "Techniques": [
-            "Adapt to Environment",
+            "Adapt to Elevation",
+            "Adapt to Terrain",
             "Disarm",
             "Expose Weakness",
             "Improved Maneuvering",
@@ -84,6 +85,7 @@
             "Rain",
             "Burning Ground",
             "Sprout",
+            "Thorns",
             "Unsteady Ground"
         ],
         "Abilities": [
