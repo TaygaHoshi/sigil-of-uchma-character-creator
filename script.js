@@ -176,7 +176,7 @@ function setTechniqueCount(container, newCount, isPath) {
   }
 }
 
-function aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement) {
+function aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement, aptitudeDisplay) {
   const currentLevel = parseInt(levelSelectElement.value);
   let currentPotency = parseInt(potencySelectElement.value);
   let currentControl = parseInt(controlSelectElement.value);
@@ -193,6 +193,8 @@ function aptitudeConstraint(levelSelectElement, potencySelectElement, controlSel
 
   potencySelectElement.max = maxPotency >= 0 ? maxPotency : 0;
   if (currentPotency > potencySelectElement.max) potencySelectElement.value = potencySelectElement.max;
+
+  aptitudeDisplay.innerHTML = currentLevel - (currentPotency + currentControl);
 }
 
 function encodeUnicodeToBase64(obj) {
@@ -235,6 +237,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const potencySelectElement = document.getElementById("potency_selection");
   const controlSelectElement = document.getElementById("control_selection");
+
+  const aptitudeDisplay = document.getElementById("remaining_aptitude_display");
 
   const pathTechniqueSelectElement = document.getElementById("path_technique_selection_main");
   const branchTechniqueSelectElement = document.getElementById("branch_technique_selection_main");
@@ -281,16 +285,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTechniqueCount(branchTechniqueSelectElement, (currentLevel - 1) / 2 + 1, false);
 
     // change amount of potency and control
-    aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement);
+    aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement, aptitudeDisplay);
 
     // refresh techniques
     enforceExclusive(pathTechniqueSelectElement);
     enforceExclusive(branchTechniqueSelectElement);
   });
 
-  potencySelectElement.addEventListener('change', () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement));
+  potencySelectElement.addEventListener('change', () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement, aptitudeDisplay));
 
-  controlSelectElement.addEventListener('change', () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement));
+  controlSelectElement.addEventListener('change', () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement, aptitudeDisplay));
 
   // populate path techniques once selected
   pathSelectElement.addEventListener('change', () => {
