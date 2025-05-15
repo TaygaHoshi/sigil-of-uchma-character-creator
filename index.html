@@ -21,18 +21,33 @@
             <h1 class="text-center mb-4 w-100">Sigil of Uchma Character Creator</h1>
             <hr class="row">
 
-            <div id="explanation_text">
-                <p>
-                    <i>Sigil of Uchma</i>  is an open source work-in-progress fantasy tabletop role playing game based on mythologies of medieval Central Asian societies.
-                </p>
-                <p>
-                    Rules of the game are described in <a href="https://sigil-test.tyghsh.cc" target="_blank">the website</a>. Have fun creating your character!
-                </p>
+            <div id="explanation_text" class="mb-4">
+
+                <i>Sigil of Uchma</i> is an open source work-in-progress fantasy tabletop role playing game based on mythologies of medieval Central Asian societies.<br /><br />
+
+                Rules of the game are described in <a href="https://sigil-test.tyghsh.cc" target="_blank">the website</a>.
+
+                You can find more detail about creating a character from
+                    <a href="https://sigil-test.tyghsh.cc/sigil-of-uchma/content/player-characters.html" target="_blank">the character creation page</a>
+                    on the official website.<br /><br />
+
+                You may also want to read <a href="https://sigil-test.tyghsh.cc/sigil-of-uchma/content/combat.html" target="_blank">the combat page</a> as it gives context to many mechanics discussed below.<br /><br />
+
+                Have fun creating your character!
             </div>
 
             <hr class="row">
-            <h4 class="mb-4 w-100">Basic Information</h4>
+            <h4 class="mb-2 ms-2 w-100">Basic Information</h4>
 
+            <div class="mb-4">
+                Starting off simple, you can start by choosing a name for your character. 
+                    Here, it is recommended that you first think of a character concept and backstory. 
+                    You can even name your character <i>after</i> choosing everything else!<br /><br />
+
+                When selecting your level, you should use the one your campaign is going to start at.
+
+            </div>
+            
             <div class="row mb-4">
                 <label for="name_selection" class="form-label">Character Name:</label>
                 <input id="name_selection" class="form-control w-75" min="1" max="10" type="text">
@@ -49,7 +64,21 @@
             </div>
 
             <hr class="row">
-            <h4 class="mb-4 w-100">Class</h4>
+            <h4 class="mb-2 ms-2 w-100">Class</h4>
+
+            <div class="mb-4">
+                Player characters in <abbr title="Sigil of Uchma">Sigil</abbr> have two kinds of classes: paths and branches.<br /><br />
+
+                Paths determine active and passive abilities you gain from leveling up, your health and half of your techniques.
+                    You can find the list of paths currently in the game here: <a href="https://sigil-test.tyghsh.cc/sigil-of-uchma/content/player-characters.html#Paths_0" target="_blank">list of paths</a><br /><br />
+
+                Branches, on the other hand, give you one or two abilities at level one, and the remaining half of your techniques.
+                    List of branches can be found here:  <a href="https://sigil-test.tyghsh.cc/sigil-of-uchma/content/player-characters.html#Branches_0" target="_blank">list of branches</a><br /><br />
+
+                As you choose your classes, you will see new choices pop up: techniques.
+                    Techniques are your active abilities that cost energy to use, similar to spells, skills or maneuvers found in other games.
+                    You can see how many techniques you have at which level <a href="https://sigil-test.tyghsh.cc/sigil-of-uchma/content/player-characters.html#Techniques_0" target="_blank">from this table</a>.
+            </div>
             
             <div class="row mb-4">
                 <label for="path_selection" class="form-label">Choose your path:</label>
@@ -76,7 +105,17 @@
             </div>
 
             <hr class="row">
-            <h4 class="mb-4 w-100">Equipment</h4>
+            <h4 class="mb-2 ms-2 w-100">Equipment</h4>
+
+            <div class="mb-4">
+                Equipment in <abbr title="Sigil of Uchma">Sigil</abbr> are almost as important as your classes and techniques.<br /><br />
+                
+                Armor acts as a damage reduction, so it is almost always very effective at keeping you alive for a few more attacks.<br /><br />
+                
+                All offensive weapons give you two weapon attacks and some even a third one, while defensive weapons are worth using even if they lack damage.<br /><br />
+                
+                You can learn more about types of armors and weapons in <a href="https://sigil-test.tyghsh.cc/sigil-of-uchma/equipment/armor-&-weapons.html" target="_blank">the equipment page</a>.
+            </div>
 
             <div class="row mb-4">
                 <label for="armor_selection" class="form-label">Choose your armor:</label>
@@ -106,7 +145,23 @@
             </div>
 
             <hr class="row">
-            <h4 class="mb-4 w-100">Aptitudes</h4>
+            <h4 class="mb-2 ms-2 w-100">Aptitudes</h4>
+
+            <div class="mb-4">
+                Aptitude system is another mechanic in the game. 
+                    You gain one aptitude point per level, starting with 1 point at level one.
+                    Many abilities across the game scale with <abbr title="Potency">P</abbr> and <abbr title="Control">C</abbr>,
+                    so you should choose carefully. You may even want to plan a few levels ahead depending on your abilities and techniques.<br /><br />
+
+                Each point spent in potency increases your damage by 1 (exceptions apply), and usually affect how "strong" your abilities are.<br /><br />
+
+                Control, on the other hand, does not have an innate effect. However, it increases durations of your abilities, how large of a radius they affect or how many creatures you can target.<br /><br />
+
+                Abilities scale differently and with different aptitudes, so read their explanations carefully!
+                    You can learn more about aptitudes <a href="https://sigil-test.tyghsh.cc/sigil-of-uchma/content/player-characters.html#Aptitudes_0" target="_blank">here</a>.<br /><br />
+
+                You have <b id="remaining_aptitude_display">1</b> aptitude point(s) left.
+            </div>
 
             <div class="row mb-4">
                 <label for="potency_selection" class="form-label">Potency:</label>
@@ -119,11 +174,24 @@
             </div>
 
             <hr class="row">
-            <h4 class="mb-4 w-100">Resistances</h4>
+            <h4 class="mb-2 ms-2 w-100">Resistances</h4>
+            <div class="mb-4">
+                To understand what resistances do, you must first know what a precision roll is.
+                    You can find a detailed description of it <a href="https://sigil-test.tyghsh.cc/sigil-of-uchma/content/combat.html#Precision_Rolls_0" target="_blank">in this page</a>.<br /><br />
+
+                To explain it simply, resistances are your main type of protection alongside armor.
+                    Your base resistances are mainly determined by your level.<br /><br />
+
+                In addition, you can choose a major and a minor resistance, or you can have three minor resistances.
+                    If you choose a resistance as your <i>major resistance</i>, it is permanently increased by two. 
+                    <i>Minor resistances</i>, on the other hand, are only increased by one.<br /><br />
+                    
+                You can see how resistances scale with level and what type of abilities they protect against <a href="https://sigil-test.tyghsh.cc/sigil-of-uchma/content/player-characters.html#Resistances_0" target="_blank">here</a>.
+            </div>
 
             <div class="row mb-4">
                 <label for="major_or_3minors_selection" class="form-label">Major resistance:</label>
-                <select id="major_or_3minors_selection" class="form-control w-50">
+                <select id="major_or_3minors_selection" class="form-control w-75">
                     <option value="1_major_1_minor">Use a major and a minor resistance</option>
                     <option value="3_minors">Use three minor resistances</option>
                 </select>
