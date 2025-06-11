@@ -194,7 +194,7 @@ function aptitudeConstraint(levelSelectElement, potencySelectElement, controlSel
   potencySelectElement.max = maxPotency >= 0 ? maxPotency : 0;
   if (currentPotency > potencySelectElement.max) potencySelectElement.value = potencySelectElement.max;
 
-  aptitudeDisplay.innerHTML = currentLevel - (currentPotency + currentControl);
+  aptitudeDisplay.innerHTML = currentLevel - (parseInt(potencySelectElement.value) + parseInt(controlSelectElement.value));
 }
 
 function encodeUnicodeToBase64(obj) {
@@ -278,6 +278,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // when level is changed
   levelSelectElement.addEventListener('change', () => {
+
+    if (parseInt(levelSelectElement.value) > 10) {
+      levelSelectElement.value = 10;
+    }
+    if (parseInt(levelSelectElement.value) < 1) {
+      levelSelectElement.value = 1;
+    }
+
     const currentLevel = parseInt(levelSelectElement.value);
 
     // change amount of path and branch techniques
