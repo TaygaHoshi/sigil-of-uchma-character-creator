@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const myHealth = myPaths[myPath].Health;
 
-    const myEnergy = 6+myLevel*2 > 24 ? 24 : 6+myLevel*2;
+    const myEnergy = 10 + 2*Math.floor(myLevel/2);
 
     //// calculate resistance
     const resistanceBase = 4 + Math.floor((myLevel + 1) / 2);
