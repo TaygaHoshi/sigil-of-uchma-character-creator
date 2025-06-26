@@ -43,7 +43,9 @@
             "Absorption",
             "Alteration",
             "Call Chaos",
+            "Curse Transfer",
             "Mark of Sacrifice",
+            "Pain Illusion",
             "Purge Blessings",
             "Spread Curses",
             "Weaken Body"
@@ -75,11 +77,11 @@
             "Clairvoyance",
             "Cleanse",
             "Divination",
-            "Fate Reversal",
             "Guest Soul",
             "Heal Creatures",
             "Message",
             "Protect Creature",
+            "Quell Effects",
             "Transfer Energy"
         ],
         "Abilities": [
@@ -107,7 +109,7 @@
             "Poem of Fury",
             "Poem of Freedom",
             "Poem of Mastery",
-            "Poem of Messenger"
+            "Poem of Travellers"
         ],
         "Abilities": [
             {
