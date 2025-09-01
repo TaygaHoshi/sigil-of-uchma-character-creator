@@ -1,13 +1,15 @@
 {
     "Wildbond": {
         "Techniques": [
-            "Distraction",
+            "Commune",
+            "Distract",
             "Find",
             "Go For Eyes",
             "Grab and Drag",
             "Lick Wounds",
             "Pounce",
             "Rush",
+            "Savagery",
             "Sweeping Attack"
         ],
         "Abilities": [
@@ -20,12 +22,14 @@
     "Warwise": {
         "Techniques": [
             "Adapt to Elevation",
+            "Adapt to Formation",
             "Adapt to Terrain",
-            "Be Careful",
+            "Focused Defense",
             "Disarm",
             "Expose Weakness",
             "Improved Maneuvering",
-            "Insight"
+            "Insight",
+            "Rally"
         ],
         "Abilities": [
             {
@@ -41,13 +45,14 @@
     "Iconcraft": {
         "Techniques": [
             "Affect Self",
-            "Banishing Ritual",
-            "Destructing Ritual",
-            "Dulling Ritual",
             "Extend Ritual",
-            "Sharpening Ritual",
-            "Shrouding Ritual",
-            "Unbreaking Ritual"
+            "Manifest",
+            "Ritual of Empowering",
+            "Ritual of Repulsion",
+            "Ritual of Shrouding",
+            "Ritual of Silence",
+            "Ritual of Stagnation",
+            "Ritual of Unbreaking"
         ],
         "Abilities": [
             {
@@ -81,13 +86,13 @@
     },
     "Druid": {
         "Techniques": [
+            "Burning Ground",
             "Earthquake",
             "Growth",
             "Landshape",
             "Lightning",
             "Metalskin",
             "Rain",
-            "Burning Ground",
             "Sprout",
             "Thorns",
             "Unsteady Ground"

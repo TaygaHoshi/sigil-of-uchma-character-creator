@@ -42,6 +42,7 @@
         "Techniques": [
             "Absorption",
             "Alteration",
+            "Bane",
             "Call Chaos",
             "Curse Transfer",
             "Mark of Sacrifice",
@@ -66,6 +67,10 @@
             {
                 "Level": 7,
                 "Name": "Death's Edge"
+            },
+            {
+                "Level": 10,
+                "Name": "Hand of the Underworld"
             }
         ]
     },
@@ -91,11 +96,19 @@
             },
             {
                 "Level": 3,
-                "Name": "Grant Boon"
+                "Name": "Simple Healing"
             },
             {
                 "Level": 5,
-                "Name": "Induce"
+                "Name": "Banish"
+            },
+            {
+                "Level": 7,
+                "Name": "Pray"
+            },
+            {
+                "Level": 10,
+                "Name": "Soul-bound"
             }
         ]
     },
@@ -108,8 +121,8 @@
             "Poem of Humility",
             "Poem of Fury",
             "Poem of Freedom",
-            "Poem of Mastery",
-            "Poem of Travellers"
+            "Poem of Praise",
+            "Poem of Travelling"
         ],
         "Abilities": [
             {
