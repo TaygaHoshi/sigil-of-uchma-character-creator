@@ -40,7 +40,6 @@
                 <button id="copyButton" class="btn btn-info w-25 mb-3">Copy Share Link</button>
             </div>
             
-            
             <hr class="row">
 
             <table class="table w-100">
@@ -70,13 +69,9 @@
                     <td colspan="1" id="characterPArmor"><b>Physical Armor:</b> x</td>
                     <td colspan="1" id="characterMArmor"><b>Magical Armor:</b> x</td>
                 </tr>
-                <tr>
-                    <td colspan="2" id="characterWeapons1">Loading...</td> 
-                    <td colspan="2" id="characterPrecision1">Loading...</td> 
-                </tr>
                 <tr style="border-bottom: solid 2px">
-                    <td colspan="2" id="characterWeapons2">Loading...</td>
-                    <td colspan="2" id="characterPrecision2">Loading...</td> 
+                    <td colspan="2" id="characterWeapons">Loading...</td> 
+                    <td colspan="2" id="characterPrecision">Loading...</td> 
                 </tr>
                 <tr>
                     <th colspan="4">Path Abilities</th>
@@ -91,8 +86,23 @@
                 
             </table>
 
-            <div class="row mb-4">
-                * Please note only precision rolls take bonuses from weapons into consideration. Initiative, movement speed and resistances do not.
+            <h5 class="mb-3">Wielded Weapon(s)</h5>
+            
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="activeMainHand" class="form-label">Main Hand:</label>
+                    <select id="activeMainHand" class="form-control w-75">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <div id="activeOffHandContainer">
+                        <label for="activeOffHand" class="form-label">Off Hand:</label>
+                        <select id="activeOffHand" class="form-control w-75">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <hr class="row">
