@@ -211,6 +211,19 @@ function displayCharacter(characterData) {
     // techniques
     document.getElementById('characterPathTechniques').innerHTML = printAbilities(characterData.pathTechniques, true);
     document.getElementById('characterBranchTechniques').innerHTML = printAbilities(characterData.branchTechniques, true);
+
+    // pet
+    if (characterData.pathPet && characterData.pathPet !== "not_selected") {
+        document.getElementById('characterPathPet').hidden = false;
+        document.getElementById('characterPathPet').innerHTML = "<td colspan='4'>" + characterData.pathPet + "</td>";
+    }
+
+    if (characterData.branchPet && characterData.branchPet !== "not_selected") {
+        document.getElementById('characterBranchPet').hidden = false;
+        document.getElementById('characterBranchPet').innerHTML = "<td colspan='4'>" + characterData.branchPet + "</td>";
+    }
+    
+
 }
 
 window.addEventListener('DOMContentLoaded', async () => {

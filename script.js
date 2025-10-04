@@ -217,6 +217,14 @@ function populatePetDamageType(divElement, selectedPet) {
 
   petDamageSelectElement.innerHTML = '';
 
+  if (!selectedPet) {
+    divElement.hidden = true;
+    return;
+  }
+  else {
+    divElement.hidden = false;
+  }
+  
   console.log(selectedPet)
 
   if (!selectedPet.DamageTypeArmorIgnoring) {
@@ -389,6 +397,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     populatePets(pathPetDivElement, selected, myPaths);
+    populatePetDamageType(pathPetDamageTypeDivElement, '');
   });
 
   // populate branch techniques once selected
@@ -404,6 +413,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     populatePets(branchPetDivElement, selected, myBranches);
+    populatePetDamageType(branchPetDamageTypeDivElement, '');
   });
 
   // technique constraint
@@ -414,25 +424,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   // pet damage type constraint
   const pathPetSelector = pathPetDivElement.querySelector('select');
   pathPetSelector.addEventListener('change', () => {
-    if (pathPetSelector.value !== "not_selected") {
-      pathPetDamageTypeDivElement.hidden = false;
-      let selectedPathPetObj = myPaths[pathSelectElement.value].Pets.find(w => w.Name === pathPetSelector.value);
-      populatePetDamageType(pathPetDamageTypeDivElement, selectedPathPetObj);
-    } else {
-      pathPetDamageTypeDivElement.hidden = true;
-    }
+    let selectedPathPetObj = myPaths[pathSelectElement.value].Pets.find(w => w.Name === pathPetSelector.value);
+    populatePetDamageType(pathPetDamageTypeDivElement, selectedPathPetObj);
 
   });
 
   const branchPetSelector = branchPetDivElement.querySelector('select');
   branchPetSelector.addEventListener('change', () => {
-    if (branchPetSelector.value !== "not_selected") {
-      branchPetDamageTypeDivElement.hidden = false;
-      let selectedBranchPetObj = myBranches[branchSelectElement.value].Pets.find(w => w.Name === branchPetSelector.value);
-      populatePetDamageType(branchPetDamageTypeDivElement, selectedBranchPetObj);
-    } else {
-      branchPetDamageTypeDivElement.hidden = true;
-    }
+    let selectedBranchPetObj = myBranches[branchSelectElement.value].Pets.find(w => w.Name === branchPetSelector.value);
+    populatePetDamageType(branchPetDamageTypeDivElement, selectedBranchPetObj);
 
   });
 
@@ -531,7 +531,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let pathPetString = "";
 
-    if (chosenPathPet !== "not_selected") {
+    if (chosenPathPet && chosenPathPet !== "not_selected") {
       pathPetString = chosenPathPet + " pet (" + chosenPathPetDamageType.toLowerCase() + ")"
     }
 
@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let branchPetString = "";
 
-    if (chosenBranchPet !== "not_selected") {
+    if (chosenBranchPet && chosenBranchPet !== "not_selected") {
       branchPetString = chosenBranchPet + " pet (" + chosenBranchPetDamageType.toLowerCase() + ")"
     }
     
