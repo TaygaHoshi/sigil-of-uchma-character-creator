@@ -176,12 +176,78 @@ function setTechniqueCount(container, newCount, isPath) {
   }
 }
 
+function populatePets(divElement, selectedClass, classData) {
+  // get the <select> inside the div
+  const petSelectElement = divElement.querySelector('select');
+
+  petSelectElement.innerHTML = '';
+
+  // check if the chosen class has pets
+  if (classData[selectedClass] && classData[selectedClass]["Pets"]) {
+
+    const defaultOpt = document.createElement('option');
+    defaultOpt.value = 'not_selected';
+    defaultOpt.textContent = 'Not selected';
+    petSelectElement.appendChild(defaultOpt);
+
+    classData[selectedClass]["Pets"].forEach(pet => {
+      const opt = document.createElement('option');
+      opt.value = pet["Name"];
+      opt.textContent = pet["Name"];
+      petSelectElement.appendChild(opt);
+    });
+
+    // unhide and enable if there are pets
+    divElement.hidden = false;
+    petSelectElement.disabled = false;
+
+    return true;
+  } else {
+    // hide and disable if no pets
+    divElement.hidden = true;
+    petSelectElement.disabled = true;
+
+    return false;
+  }
+}
+
+function populatePetDamageType(divElement, selectedPet) {
+  console.log("pet damage type")
+  const petDamageSelectElement = divElement.querySelector('select');
+
+  petDamageSelectElement.innerHTML = '';
+
+  console.log(selectedPet)
+
+  if (!selectedPet.DamageTypeArmorIgnoring) {
+    const physicalDamagePet = document.createElement('option');
+    physicalDamagePet.value = 'Physical';
+    physicalDamagePet.textContent = 'Physical';
+    petDamageSelectElement.appendChild(physicalDamagePet);
+
+    const magicalDamagePet = document.createElement('option');
+    magicalDamagePet.value = 'Magical';
+    magicalDamagePet.textContent = 'Magical';
+    petDamageSelectElement.appendChild(magicalDamagePet);
+
+    petDamageSelectElement.disabled = false;
+  } else {
+    const armorIgnoringDamagePet = document.createElement('option');
+    armorIgnoringDamagePet.value = 'Armor-ignoring';
+    armorIgnoringDamagePet.textContent = 'Armor-ignoring';
+    petDamageSelectElement.appendChild(armorIgnoringDamagePet);
+
+    petDamageSelectElement.disabled = true;
+  }
+}
+
+
 function aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement, aptitudeDisplay) {
   const currentLevel = parseInt(levelSelectElement.value);
   let currentPotency = parseInt(potencySelectElement.value);
   let currentControl = parseInt(controlSelectElement.value);
 
-  maxControl = currentLevel - currentPotency;
+  let maxControl = currentLevel - currentPotency;
 
   controlSelectElement.max = maxControl >= 0 ? maxControl : 0;
   if (currentControl > controlSelectElement.max) controlSelectElement.value = controlSelectElement.max;
@@ -189,7 +255,7 @@ function aptitudeConstraint(levelSelectElement, potencySelectElement, controlSel
   currentPotency = parseInt(potencySelectElement.value);
   currentControl = parseInt(controlSelectElement.value);
 
-  maxPotency = currentLevel - currentControl;
+  let maxPotency = currentLevel - currentControl;
 
   potencySelectElement.max = maxPotency >= 0 ? maxPotency : 0;
   if (currentPotency > potencySelectElement.max) potencySelectElement.value = potencySelectElement.max;
@@ -242,6 +308,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const pathTechniqueSelectElement = document.getElementById("path_technique_selection_main");
   const branchTechniqueSelectElement = document.getElementById("branch_technique_selection_main");
+
+  const pathPetDivElement = document.getElementById("path_pet_selection_main");
+  const branchPetDivElement = document.getElementById("branch_pet_selection_main");
+
+  const pathPetDamageTypeDivElement = document.getElementById("path_pet_damage_type_selection_main");
+  const branchPetDamageTypeDivElement = document.getElementById("branch_pet_damage_type_selection_main");
 
   // populate paths and branches
   const isPathPopulated = populateClass(pathSelectElement, myPaths);
@@ -315,6 +387,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     else {
       pathTechniqueSelectElement.hidden = true;
     }
+
+    populatePets(pathPetDivElement, selected, myPaths);
   });
 
   // populate branch techniques once selected
@@ -328,12 +402,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     else {
       branchTechniqueSelectElement.hidden = true;
     }
+
+    populatePets(branchPetDivElement, selected, myBranches);
   });
 
   // technique constraint
 
   pathTechniqueSelectElement.addEventListener('change', () => enforceExclusive(pathTechniqueSelectElement));
   branchTechniqueSelectElement.addEventListener('change', () => enforceExclusive(branchTechniqueSelectElement));
+
+  // pet damage type constraint
+  const pathPetSelector = pathPetDivElement.querySelector('select');
+  pathPetSelector.addEventListener('change', () => {
+    if (pathPetSelector.value !== "not_selected") {
+      pathPetDamageTypeDivElement.hidden = false;
+      let selectedPathPetObj = myPaths[pathSelectElement.value].Pets.find(w => w.Name === pathPetSelector.value);
+      populatePetDamageType(pathPetDamageTypeDivElement, selectedPathPetObj);
+    } else {
+      pathPetDamageTypeDivElement.hidden = true;
+    }
+
+  });
+
+  const branchPetSelector = branchPetDivElement.querySelector('select');
+  branchPetSelector.addEventListener('change', () => {
+    if (branchPetSelector.value !== "not_selected") {
+      branchPetDamageTypeDivElement.hidden = false;
+      let selectedBranchPetObj = myBranches[branchSelectElement.value].Pets.find(w => w.Name === branchPetSelector.value);
+      populatePetDamageType(branchPetDamageTypeDivElement, selectedBranchPetObj);
+    } else {
+      branchPetDamageTypeDivElement.hidden = true;
+    }
+
+  });
 
   // resistance constraint
   resistanceMajorMinorSelectElement.addEventListener('change', () => {
@@ -424,6 +525,26 @@ document.addEventListener('DOMContentLoaded', async () => {
       .map(s => s.value)
       .filter(v => v !== "not_selected");
 
+    // Gather pet information
+    const chosenPathPet = pathPetSelector.value;
+    const chosenPathPetDamageType = pathPetDamageTypeDivElement.querySelector('select').value;
+
+    let pathPetString = "";
+
+    if (chosenPathPet !== "not_selected") {
+      pathPetString = chosenPathPet + " pet (" + chosenPathPetDamageType.toLowerCase() + ")"
+    }
+
+    const chosenBranchPet = branchPetSelector.value;
+    const chosenBranchPetDamageType = branchPetDamageTypeDivElement.querySelector('select').value;
+
+    let branchPetString = "";
+
+    if (chosenBranchPet !== "not_selected") {
+      branchPetString = chosenBranchPet + " pet (" + chosenBranchPetDamageType.toLowerCase() + ")"
+    }
+    
+
     // Get abilities <= to my level
     const myPathAbilities = getAvailableAbilities(myPaths[myPath].Abilities, myLevel);
     const myBranchAbilities = getAvailableAbilities(myBranches[myBranch].Abilities, myLevel);
@@ -488,7 +609,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       pathTechniques: myPathTechniques,
       branchTechniques: myBranchTechniques,
       pathAbilities: myPathAbilities,
-      branchAbilities: myBranchAbilities
+      branchAbilities: myBranchAbilities,
+      pathPet: pathPetString,
+      branchPet: branchPetString
     };
 
     // Serialize and encode the data

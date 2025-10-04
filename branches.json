@@ -17,6 +17,24 @@
                 "Level": 1,
                 "Name": "Call Pet"
             }
+        ],
+        "Pets": [
+            {
+                "Name": "Striker",
+                "DamageTypeArmorIgnoring": false
+            },
+            {
+                "Name": "Sharpshooter",
+                "DamageTypeArmorIgnoring": false
+            },
+            {
+                "Name": "Tough",
+                "DamageTypeArmorIgnoring": false
+            },
+            {
+                "Name": "Scout",
+                "DamageTypeArmorIgnoring": true
+            }
         ]
     },
     "Warwise": {
