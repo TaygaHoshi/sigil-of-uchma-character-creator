@@ -212,7 +212,6 @@ function populatePets(divElement, selectedClass, classData) {
 }
 
 function populatePetDamageType(divElement, selectedPet) {
-  console.log("pet damage type")
   const petDamageSelectElement = divElement.querySelector('select');
 
   petDamageSelectElement.innerHTML = '';
@@ -224,8 +223,6 @@ function populatePetDamageType(divElement, selectedPet) {
   else {
     divElement.hidden = false;
   }
-  
-  console.log(selectedPet)
 
   if (!selectedPet.DamageTypeArmorIgnoring) {
     const physicalDamagePet = document.createElement('option');
