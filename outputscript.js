@@ -31,6 +31,11 @@ function isTwoHanded(weaponName) {
     return weapon && weapon.Type === 'two_hand';
 }
 
+function isLightWeapon(weaponName) {
+    const weapon = getWeaponData(weaponName);
+    return weapon && weapon.isLight;
+}
+
 function printWeapons(mainW, offW) {
     return offW != "not_selected" ? mainW + " | " + offW : mainW;
 }
@@ -116,71 +121,156 @@ function updateWeaponStats() {
 }
 
 function populateWeaponSelectors() {
-    if (!myCharacterData) return;
-
     const mainHandSelectElement = document.getElementById('activeMainHand');
     const offHandSelectElement = document.getElementById('activeOffHand');
     const offHandContainer = document.getElementById('activeOffHandContainer');
 
-    // populate main hand
+    const mh1 = myCharacterData.mainWeapon1;
+    const mh2 = myCharacterData.mainWeapon2;
+    const oh1 = myCharacterData.offWeapon1;
+    const oh2 = myCharacterData.offWeapon2;
+
+    // Create array of all weapons to track duplicates
+    const weapons = [];
+    if (mh1 !== 'not_selected') weapons.push({ name: mh1, slot: 'mh1' });
+    if (mh2 !== 'not_selected') weapons.push({ name: mh2, slot: 'mh2' });
+    if (oh1 !== 'not_selected') weapons.push({ name: oh1, slot: 'oh1' });
+    if (oh2 !== 'not_selected') weapons.push({ name: oh2, slot: 'oh2' });
+
+    // Track weapon name occurrences to add suffix
+    const nameCount = {};
+    const displayNames = {};
+    weapons.forEach(w => {
+        nameCount[w.name] = (nameCount[w.name] || 0) + 1;
+        const suffix = nameCount[w.name] > 1 ? `-${nameCount[w.name]}` : '';
+        displayNames[w.slot] = w.name + suffix;
+    });
+
+    // Populate main hand
     mainHandSelectElement.innerHTML = '';
+
+    if (oh1 !== 'not_selected' && isLightWeapon(oh1)) {
+        const opt = document.createElement('option');
+        opt.value = 'oh1';
+        opt.textContent = displayNames['oh1'];
+        opt.dataset.weaponName = oh1;
+        mainHandSelectElement.appendChild(opt);
+    }
+
+    if (oh2 !== 'not_selected' && isLightWeapon(oh2)) {
+        const opt = document.createElement('option');
+        opt.value = 'oh2';
+        opt.textContent = displayNames['oh2'];
+        opt.dataset.weaponName = oh2;
+        mainHandSelectElement.appendChild(opt);
+    }
     
-    if (myCharacterData.mainWeapon1 !== 'not_selected') {
+    if (mh1 !== 'not_selected') {
         const opt1 = document.createElement('option');
-        opt1.value = myCharacterData.mainWeapon1;
-        opt1.textContent = myCharacterData.mainWeapon1;
+        opt1.value = 'mh1';
+        opt1.textContent = displayNames['mh1'];
+        opt1.dataset.weaponName = mh1;
         mainHandSelectElement.appendChild(opt1);
     }
     
-    if (myCharacterData.mainWeapon2 !== 'not_selected' && 
-        myCharacterData.mainWeapon2 !== myCharacterData.mainWeapon1) {
+    if (mh2 !== 'not_selected') {
         const opt2 = document.createElement('option');
-        opt2.value = myCharacterData.mainWeapon2;
-        opt2.textContent = myCharacterData.mainWeapon2;
+        opt2.value = 'mh2';
+        opt2.textContent = displayNames['mh2'];
+        opt2.dataset.weaponName = mh2;
         mainHandSelectElement.appendChild(opt2);
     }
 
-    currentMainHand = mainHandSelectElement.value;
-
-    function updateOffHandOptions() {
-        currentMainHand = mainHandSelectElement.value;
-        
-        if (isTwoHanded(currentMainHand)) {
-            offHandContainer.hidden = true;
-            currentOffHand = 'not_selected';
-        } else {
-            offHandContainer.hidden = false;
-            
-            offHandSelectElement.innerHTML = '<option value="not_selected">None</option>';
-
-            if (myCharacterData.offWeapon1 !== 'not_selected') {
-                    const opt = document.createElement('option');
-                    opt.value = myCharacterData.offWeapon1;
-                    opt.textContent = myCharacterData.offWeapon1;
-                    offHandSelectElement.appendChild(opt);
-                    offHandSelectElement.value = myCharacterData.offWeapon1;
-            }
-            if (myCharacterData.offWeapon2 !== 'not_selected') {
-                    const opt = document.createElement('option');
-                    opt.value = myCharacterData.offWeapon2;
-                    opt.textContent = myCharacterData.offWeapon2;
-                    offHandSelectElement.appendChild(opt);
-                    offHandSelectElement.value = myCharacterData.offWeapon2;
-            }
-            
-            currentOffHand = offHandSelectElement.value;
-        }
-        
-        updateWeaponStats();
-    }
+    currentMainHand = mainHandSelectElement.selectedOptions[0]?.dataset.weaponName || 'not_selected';
 
     mainHandSelectElement.addEventListener('change', updateOffHandOptions);
     offHandSelectElement.addEventListener('change', () => {
-        currentOffHand = offHandSelectElement.value;
+        currentOffHand = offHandSelectElement.selectedOptions[0]?.dataset.weaponName || 'not_selected';
         updateWeaponStats();
     });
 
     updateOffHandOptions();
+}
+
+function updateOffHandOptions() {
+    const mainHandSelectElement = document.getElementById('activeMainHand');
+    const offHandSelectElement = document.getElementById('activeOffHand');
+    const offHandContainer = document.getElementById('activeOffHandContainer');
+
+    const mh1 = myCharacterData.mainWeapon1;
+    const mh2 = myCharacterData.mainWeapon2;
+    const oh1 = myCharacterData.offWeapon1;
+    const oh2 = myCharacterData.offWeapon2;
+
+    const currentMainHandSlot = mainHandSelectElement.value;
+    
+    // Map slot to weapon name
+    const slotToWeapon = {
+        'mh1': mh1,
+        'mh2': mh2,
+        'oh1': oh1,
+        'oh2': oh2
+    };
+    
+    currentMainHand = slotToWeapon[currentMainHandSlot] || 'not_selected';
+
+    // Create array of all weapons to track duplicates
+    const weapons = [];
+    if (mh1 !== 'not_selected') weapons.push({ name: mh1, slot: 'mh1' });
+    if (mh2 !== 'not_selected') weapons.push({ name: mh2, slot: 'mh2' });
+    if (oh1 !== 'not_selected') weapons.push({ name: oh1, slot: 'oh1' });
+    if (oh2 !== 'not_selected') weapons.push({ name: oh2, slot: 'oh2' });
+
+    // Track weapon name occurrences to add suffix
+    const nameCount = {};
+    const displayNames = {};
+    weapons.forEach(w => {
+        nameCount[w.name] = (nameCount[w.name] || 0) + 1;
+        const suffix = nameCount[w.name] > 1 ? `-${nameCount[w.name]}` : '';
+        displayNames[w.slot] = w.name + suffix;
+    });
+    
+    if (isTwoHanded(currentMainHand)) {
+        offHandContainer.hidden = true;
+        currentOffHand = 'not_selected';
+    } else {
+        offHandContainer.hidden = false;
+        
+        offHandSelectElement.innerHTML = '<option value="not_selected">None</option>';
+
+        if (oh1 !== 'not_selected' && currentMainHandSlot !== 'oh1') {
+            const opt = document.createElement('option');
+            opt.value = 'oh1';
+            opt.textContent = displayNames['oh1'];
+            opt.dataset.weaponName = oh1;
+            offHandSelectElement.appendChild(opt);
+        }
+        if (oh2 !== 'not_selected' && currentMainHandSlot !== 'oh2') {
+            const opt = document.createElement('option');
+            opt.value = 'oh2';
+            opt.textContent = displayNames['oh2'];
+            opt.dataset.weaponName = oh2;
+            offHandSelectElement.appendChild(opt);
+        }
+        if (mh1 !== 'not_selected' && currentMainHandSlot !== 'mh1' && isLightWeapon(mh1)) {
+            const opt = document.createElement('option');
+            opt.value = 'mh1';
+            opt.textContent = displayNames['mh1'];
+            opt.dataset.weaponName = mh1;
+            offHandSelectElement.appendChild(opt);
+        }
+        if (mh2 !== 'not_selected' && currentMainHandSlot !== 'mh2' && isLightWeapon(mh2)) {
+            const opt = document.createElement('option');
+            opt.value = 'mh2';
+            opt.textContent = displayNames['mh2'];
+            opt.dataset.weaponName = mh2;
+            offHandSelectElement.appendChild(opt);
+        }
+        
+        currentOffHand = offHandSelectElement.selectedOptions[0]?.dataset.weaponName || 'not_selected';
+    }
+    
+    updateWeaponStats();
 }
 
 function displayCharacter(characterData) {
