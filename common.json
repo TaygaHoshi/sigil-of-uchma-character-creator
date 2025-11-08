@@ -4,15 +4,15 @@
             "Name": "Unarmored",
             "PArmor": 0,
             "MArmor": 0,
-            "Initiative": 2,
-            "Speed": 0,
+            "Initiative": 1,
+            "Speed": 1,
             "Stealth": 2
         },
         {
             "Name": "Robes",
             "PArmor": 0,
             "MArmor": 5,
-            "Initiative": 1,
+            "Initiative": 0,
             "Speed": 0,
             "Stealth": 1
         },
@@ -36,6 +36,14 @@
             "Name": "Heavy",
             "PArmor": 10,
             "MArmor": 0,
+            "Initiative": -1,
+            "Speed": -2,
+            "Stealth": -2
+        },
+        {
+            "Name": "Warded",
+            "PArmor": 0,
+            "MArmor": 10,
             "Initiative": -1,
             "Speed": -2,
             "Stealth": -2
