@@ -104,21 +104,25 @@
     },
     "Druid": {
         "Techniques": [
-            "Burning Ground",
-            "Earthquake",
-            "Growth",
+            "Cycle of Cultivation",
+            "Elemental Armor",
+            "Elemental Ground",
+            "Elemental Storm",
+            "Elemental Weapon",
+            "Flaming Trail",
+            "Ice Shards",
             "Landshape",
-            "Lightning",
             "Metalskin",
-            "Rain",
-            "Sprout",
-            "Thorns",
-            "Unsteady Ground"
+            "Sprout"
         ],
         "Abilities": [
             {
                 "Level": 1,
                 "Name": "Element-enveloped"
+            },
+            {
+                "Level": 1,
+                "Name": "Cycle of Suppression"
             }
         ]
     }
