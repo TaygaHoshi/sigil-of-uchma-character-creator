@@ -101,9 +101,11 @@ function weaponConstraint(selectElement, offhandElement, commonData) {
   const result = commonData["Weapons"].find(item => item.Name === selected);
 
   if (result["Type"] == "two_hand") {
+    // Two-handed selection: hide and clear off-hand so stale values are not submitted
     offhandElement.hidden = true;
-  }
-  else {
+    offhandElement.value = "not_selected";
+  } else {
+    // One-handed or off-hand weapon: show and reset to not selected
     offhandElement.hidden = false;
     offhandElement.value = "not_selected";
   }
@@ -546,24 +548,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const myPathAbilities = getAvailableAbilities(myPaths[myPath].Abilities, myLevel);
     const myBranchAbilities = getAvailableAbilities(myBranches[myBranch].Abilities, myLevel);
 
-    // get weapon set precisions
-    const precisionRollBase = Math.floor(myLevel/2);
+    // gather selected weapons into an order-agnostic array
+    const weaponSelections = [
+      mainWeapon1SelectElement.value,
+      offWeapon1SelectElement.value,
+      mainWeapon2SelectElement.value,
+      offWeapon2SelectElement.value
+    ].filter(v => v && v !== "not_selected");
 
-    const myMainWeapon1 = mainWeapon1SelectElement.value;
-    const myOffWeapon1 = offWeapon1SelectElement.value;
-    const myMainWeapon2 = mainWeapon2SelectElement.value;
-    const myOffWeapon2 = offWeapon2SelectElement.value;
-
-    const mw1obj = myCommon.Weapons.find(w => w.Name === myMainWeapon1);
-    const ow1obj = myCommon.Weapons.find(w => w.Name === myOffWeapon1);
-    const mw2obj = myCommon.Weapons.find(w => w.Name === myMainWeapon2);
-    const ow2obj = myCommon.Weapons.find(w => w.Name === myOffWeapon2);
-
-    let set1Precision = precisionRollBase + mw1obj.Precision;
-    set1Precision += myOffWeapon1 === "Charm" ? ow1obj.Precision : 0;
-
-    let set2Precision = precisionRollBase + mw2obj.Precision;
-    set2Precision += myOffWeapon2 === "Charm" ? ow2obj.Precision : 0;
+    const weapons = weaponSelections.map((name, index) => ({
+      id: `w${index + 1}`,
+      name
+    }));
 
     // armor
     const myArmor = armorSelectElement.value;
@@ -572,13 +568,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const myPArmor = armorObj.PArmor;
     const myMArmor = armorObj.MArmor;
 
-    // initiative
-    const baseInitiative = 0;
-    const myInitiative = baseInitiative + armorObj.Initiative;
-
-    // movement speed
-    const baseMovementSpeed = 6;
-    const myMovementSpeed = baseMovementSpeed + armorObj.Speed;
+    // movement speed comes directly from chosen armor
+    const myMovementSpeed = armorObj ? armorObj.Speed : 6;
 
     // send character data
     const characterData = {
@@ -595,14 +586,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       armor: myArmor,
       pArmor: myPArmor,
       mArmor: myMArmor,
-      initiative: myInitiative,
       movementSpeed: myMovementSpeed,
-      mainWeapon1: myMainWeapon1,
-      offWeapon1: myOffWeapon1,
-      weapon1Precision: set1Precision,
-      mainWeapon2: myMainWeapon2,
-      offWeapon2: myOffWeapon2,
-      weapon2Precision: set2Precision,
+      weapons,
       pathTechniques: myPathTechniques,
       branchTechniques: myBranchTechniques,
       pathAbilities: myPathAbilities,
