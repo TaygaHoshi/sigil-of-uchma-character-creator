@@ -1,0 +1,10 @@
+/* Hide native number spinners; we provide explicit +/- controls */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.no-spinner[type=number] {
+    -moz-appearance: textfield;
+}
