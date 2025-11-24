@@ -101,9 +101,11 @@ function weaponConstraint(selectElement, offhandElement, commonData) {
   const result = commonData["Weapons"].find(item => item.Name === selected);
 
   if (result["Type"] == "two_hand") {
+    // Two-handed selection: hide and clear off-hand so stale values are not submitted
     offhandElement.hidden = true;
-  }
-  else {
+    offhandElement.value = "not_selected";
+  } else {
+    // One-handed or off-hand weapon: show and reset to not selected
     offhandElement.hidden = false;
     offhandElement.value = "not_selected";
   }
