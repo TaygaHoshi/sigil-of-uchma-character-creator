@@ -1,8 +1,9 @@
 // Global state
 let myCharacterData = null;
 let myCommon = null;
-let currentMainHand = null;
-let currentOffHand = null;
+let currentMainHandId = null;
+let currentOffHandId = null;
+let weaponDisplayNames = {};
 
 async function readCommon() {
   try {
@@ -31,13 +32,84 @@ function isTwoHanded(weaponName) {
     return weapon && weapon.Type === 'two_hand';
 }
 
-function isLightWeapon(weaponName) {
-    const weapon = getWeaponData(weaponName);
-    return weapon && weapon.isLight;
+function getWeaponEntryById(id) {
+    if (!id || !myCharacterData?.weapons) return null;
+    return myCharacterData.weapons.find(w => w.id === id) || null;
 }
 
-function printWeapons(mainW, offW) {
-    return offW != "not_selected" ? mainW + " | " + offW : mainW;
+function getWeaponNameById(id) {
+    return getWeaponEntryById(id)?.name || null;
+}
+
+function getEquipSlots(weaponName) {
+    const weapon = getWeaponData(weaponName);
+    if (!weapon) return { canMain: false, canOff: false };
+
+    if (weapon.Type === 'two_hand') return { canMain: true, canOff: false };
+    if (weapon.Type === 'off_hand') return { canMain: false, canOff: true };
+
+    // one-handed weapons: light can be off-hand, heavy cannot
+    const canOff = !!weapon.isLight;
+    return { canMain: true, canOff };
+}
+
+function buildWeaponDisplayNames(weapons) {
+    const nameCount = {};
+    const labels = {};
+
+    weapons.forEach(w => {
+        nameCount[w.name] = (nameCount[w.name] || 0) + 1;
+        const suffix = nameCount[w.name] > 1 ? `-${nameCount[w.name]}` : '';
+        labels[w.id] = w.name + suffix;
+    });
+
+    return labels;
+}
+
+function printWeapons(mainId, offId) {
+    if (!mainId) return "None";
+
+    const mainLabel = getWeaponNameById(mainId) || "None";
+    const offLabel = offId ? getWeaponNameById(offId) : null;
+
+    return offLabel ? `${mainLabel} | ${offLabel}` : mainLabel;
+}
+
+function formatPrecision(precision) {
+    if (precision === 0) return "d10";
+    if (precision > 0) return `d10 + ${precision}`;
+    return `d10 - ${Math.abs(precision)}`;
+}
+
+function normalizeWeapons(characterData) {
+    if (!characterData) return;
+
+    let weaponsArray = [];
+
+    if (Array.isArray(characterData.weapons)) {
+        weaponsArray = characterData.weapons
+            .map((w, index) => {
+                if (typeof w === 'string') {
+                    return { id: `w${index + 1}`, name: w };
+                }
+                return { id: w.id || `w${index + 1}`, name: w.name };
+            })
+            .filter(w => w.name && w.name !== 'not_selected');
+    } else {
+        const legacyWeapons = [
+            characterData.mainWeapon1,
+            characterData.offWeapon1,
+            characterData.mainWeapon2,
+            characterData.offWeapon2
+        ].filter(v => v && v !== 'not_selected');
+
+        weaponsArray = legacyWeapons.map((name, index) => ({
+            id: `w${index + 1}`,
+            name
+        }));
+    }
+
+    characterData.weapons = weaponsArray;
 }
 
 function printAbilities(abilityArray, isTechnique) {
@@ -55,15 +127,19 @@ function printAbilities(abilityArray, isTechnique) {
 }
 
 function updateWeaponStats() {
-    if (!myCharacterData || !myCommon || !currentMainHand) return;
+    if (!myCharacterData || !myCommon) return;
 
-    const mainWeapon = getWeaponData(currentMainHand);
-    const offWeapon = currentOffHand !== 'not_selected' ? getWeaponData(currentOffHand) : null;
+    const mainWeaponName = getWeaponNameById(currentMainHandId);
+    const offWeaponName = getWeaponNameById(currentOffHandId);
+
+    const mainWeapon = getWeaponData(mainWeaponName);
+    const offWeapon = offWeaponName ? getWeaponData(offWeaponName) : null;
 
     // calculate precision
     const precisionBase = Math.floor(myCharacterData.level / 2);
     let precision = precisionBase + (mainWeapon ? mainWeapon.Precision : 0);
-    if (currentOffHand === 'Charm' && offWeapon) {
+    // Off-hand modifies precision only when the item is an off-hand type (shields, charms, etc.)
+    if (offWeapon?.Type === 'off_hand') {
         precision += offWeapon.Precision;
     }
 
@@ -98,16 +174,11 @@ function updateWeaponStats() {
         if (offWeapon.Warding) myResistances.Warding += offWeapon.Warding;
     }
 
-    // calculate initiative
-    let initiative = baseArmor ? baseArmor.Initiative : 0;
-    if (mainWeapon && mainWeapon.Initiative) initiative += mainWeapon.Initiative;
-    if (offWeapon && offWeapon.Initiative) initiative += offWeapon.Initiative;
-
     // update display
-    const weaponDisplay = printWeapons(currentMainHand, currentOffHand);
+    const weaponDisplay = printWeapons(currentMainHandId, currentOffHandId);
     
     document.getElementById('characterWeapons').innerHTML = weaponDisplay;
-    document.getElementById('characterPrecision').innerHTML = "<b>Precision Roll:</b> d10 + " + precision;
+    document.getElementById('characterPrecision').innerHTML = "<b>Precision Roll:</b> " + formatPrecision(precision);
     
     document.getElementById('characterPArmor').innerHTML = "<b>Physical Armor:</b> " + pArmor;
     document.getElementById('characterMArmor').innerHTML = "<b>Magical Armor:</b> " + mArmor;
@@ -116,8 +187,6 @@ function updateWeaponStats() {
     document.getElementById('characterWarding').innerHTML = "<b>Warding:</b> " + myResistances.Warding;
     document.getElementById('characterConstitution').innerHTML = "<b>Constitution:</b> " + myResistances.Constitution;
     document.getElementById('characterEvasion').innerHTML = "<b>Evasion:</b> " + myResistances.Evasion;
-    
-    document.getElementById('characterInitiative').innerHTML = "<b>Initiative:</b> " + initiative;
 }
 
 function populateWeaponSelectors() {
@@ -125,69 +194,53 @@ function populateWeaponSelectors() {
     const offHandSelectElement = document.getElementById('activeOffHand');
     const offHandContainer = document.getElementById('activeOffHandContainer');
 
-    const mh1 = myCharacterData.mainWeapon1;
-    const mh2 = myCharacterData.mainWeapon2;
-    const oh1 = myCharacterData.offWeapon1;
-    const oh2 = myCharacterData.offWeapon2;
+    if (!myCharacterData?.weapons || myCharacterData.weapons.length === 0) {
+        mainHandSelectElement.innerHTML = '<option value="">No weapons selected</option>';
+        offHandSelectElement.innerHTML = '<option value="">None</option>';
+        offHandContainer.hidden = true;
+        currentMainHandId = null;
+        currentOffHandId = null;
+        updateWeaponStats();
+        return;
+    }
 
-    // Create array of all weapons to track duplicates
-    const weapons = [];
-    if (mh1 !== 'not_selected') weapons.push({ name: mh1, slot: 'mh1' });
-    if (mh2 !== 'not_selected') weapons.push({ name: mh2, slot: 'mh2' });
-    if (oh1 !== 'not_selected') weapons.push({ name: oh1, slot: 'oh1' });
-    if (oh2 !== 'not_selected') weapons.push({ name: oh2, slot: 'oh2' });
+    weaponDisplayNames = buildWeaponDisplayNames(myCharacterData.weapons);
 
-    // Track weapon name occurrences to add suffix
-    const nameCount = {};
-    const displayNames = {};
-    weapons.forEach(w => {
-        nameCount[w.name] = (nameCount[w.name] || 0) + 1;
-        const suffix = nameCount[w.name] > 1 ? `-${nameCount[w.name]}` : '';
-        displayNames[w.slot] = w.name + suffix;
-    });
+    const mainOptions = myCharacterData.weapons.filter(w => getEquipSlots(w.name).canMain);
 
-    // Populate main hand
+    if (mainOptions.length === 0) {
+        mainHandSelectElement.innerHTML = '<option value="">No main-hand options</option>';
+        offHandSelectElement.innerHTML = '<option value="">None</option>';
+        offHandContainer.hidden = true;
+        currentMainHandId = null;
+        currentOffHandId = null;
+        updateWeaponStats();
+        return;
+    }
+
     mainHandSelectElement.innerHTML = '';
 
-    if (oh1 !== 'not_selected' && isLightWeapon(oh1)) {
+    mainOptions.forEach(w => {
         const opt = document.createElement('option');
-        opt.value = 'oh1';
-        opt.textContent = displayNames['oh1'];
-        opt.dataset.weaponName = oh1;
+        opt.value = w.id;
+        opt.textContent = weaponDisplayNames[w.id] || w.name;
         mainHandSelectElement.appendChild(opt);
-    }
-
-    if (oh2 !== 'not_selected' && isLightWeapon(oh2)) {
-        const opt = document.createElement('option');
-        opt.value = 'oh2';
-        opt.textContent = displayNames['oh2'];
-        opt.dataset.weaponName = oh2;
-        mainHandSelectElement.appendChild(opt);
-    }
-    
-    if (mh1 !== 'not_selected') {
-        const opt1 = document.createElement('option');
-        opt1.value = 'mh1';
-        opt1.textContent = displayNames['mh1'];
-        opt1.dataset.weaponName = mh1;
-        mainHandSelectElement.appendChild(opt1);
-    }
-    
-    if (mh2 !== 'not_selected') {
-        const opt2 = document.createElement('option');
-        opt2.value = 'mh2';
-        opt2.textContent = displayNames['mh2'];
-        opt2.dataset.weaponName = mh2;
-        mainHandSelectElement.appendChild(opt2);
-    }
-
-    currentMainHand = mainHandSelectElement.selectedOptions[0]?.dataset.weaponName || 'not_selected';
-
-    mainHandSelectElement.addEventListener('change', updateOffHandOptions);
-    offHandSelectElement.addEventListener('change', () => {
-        currentOffHand = offHandSelectElement.selectedOptions[0]?.dataset.weaponName || 'not_selected';
-        updateWeaponStats();
     });
+
+    const fallbackMainId = mainOptions[0]?.id || '';
+    const selectedMainId = mainOptions.some(w => w.id === currentMainHandId) ? currentMainHandId : fallbackMainId;
+    currentMainHandId = selectedMainId || null;
+    mainHandSelectElement.value = selectedMainId;
+
+    mainHandSelectElement.onchange = () => {
+        currentMainHandId = mainHandSelectElement.value || null;
+        updateOffHandOptions();
+    };
+
+    offHandSelectElement.onchange = () => {
+        currentOffHandId = offHandSelectElement.value || null;
+        updateWeaponStats();
+    };
 
     updateOffHandOptions();
 }
@@ -197,79 +250,35 @@ function updateOffHandOptions() {
     const offHandSelectElement = document.getElementById('activeOffHand');
     const offHandContainer = document.getElementById('activeOffHandContainer');
 
-    const mh1 = myCharacterData.mainWeapon1;
-    const mh2 = myCharacterData.mainWeapon2;
-    const oh1 = myCharacterData.offWeapon1;
-    const oh2 = myCharacterData.offWeapon2;
+    currentMainHandId = mainHandSelectElement.value || null;
 
-    const currentMainHandSlot = mainHandSelectElement.value;
-    
-    // Map slot to weapon name
-    const slotToWeapon = {
-        'mh1': mh1,
-        'mh2': mh2,
-        'oh1': oh1,
-        'oh2': oh2
-    };
-    
-    currentMainHand = slotToWeapon[currentMainHandSlot] || 'not_selected';
+    const mainWeaponName = getWeaponNameById(currentMainHandId);
 
-    // Create array of all weapons to track duplicates
-    const weapons = [];
-    if (mh1 !== 'not_selected') weapons.push({ name: mh1, slot: 'mh1' });
-    if (mh2 !== 'not_selected') weapons.push({ name: mh2, slot: 'mh2' });
-    if (oh1 !== 'not_selected') weapons.push({ name: oh1, slot: 'oh1' });
-    if (oh2 !== 'not_selected') weapons.push({ name: oh2, slot: 'oh2' });
-
-    // Track weapon name occurrences to add suffix
-    const nameCount = {};
-    const displayNames = {};
-    weapons.forEach(w => {
-        nameCount[w.name] = (nameCount[w.name] || 0) + 1;
-        const suffix = nameCount[w.name] > 1 ? `-${nameCount[w.name]}` : '';
-        displayNames[w.slot] = w.name + suffix;
-    });
-    
-    if (isTwoHanded(currentMainHand)) {
+    if (!mainWeaponName || isTwoHanded(mainWeaponName)) {
         offHandContainer.hidden = true;
-        currentOffHand = 'not_selected';
-    } else {
-        offHandContainer.hidden = false;
-        
-        offHandSelectElement.innerHTML = '<option value="not_selected">None</option>';
-
-        if (oh1 !== 'not_selected' && currentMainHandSlot !== 'oh1') {
-            const opt = document.createElement('option');
-            opt.value = 'oh1';
-            opt.textContent = displayNames['oh1'];
-            opt.dataset.weaponName = oh1;
-            offHandSelectElement.appendChild(opt);
-        }
-        if (oh2 !== 'not_selected' && currentMainHandSlot !== 'oh2') {
-            const opt = document.createElement('option');
-            opt.value = 'oh2';
-            opt.textContent = displayNames['oh2'];
-            opt.dataset.weaponName = oh2;
-            offHandSelectElement.appendChild(opt);
-        }
-        if (mh1 !== 'not_selected' && currentMainHandSlot !== 'mh1' && isLightWeapon(mh1)) {
-            const opt = document.createElement('option');
-            opt.value = 'mh1';
-            opt.textContent = displayNames['mh1'];
-            opt.dataset.weaponName = mh1;
-            offHandSelectElement.appendChild(opt);
-        }
-        if (mh2 !== 'not_selected' && currentMainHandSlot !== 'mh2' && isLightWeapon(mh2)) {
-            const opt = document.createElement('option');
-            opt.value = 'mh2';
-            opt.textContent = displayNames['mh2'];
-            opt.dataset.weaponName = mh2;
-            offHandSelectElement.appendChild(opt);
-        }
-        
-        currentOffHand = offHandSelectElement.selectedOptions[0]?.dataset.weaponName || 'not_selected';
+        currentOffHandId = null;
+        offHandSelectElement.innerHTML = '<option value="">None</option>';
+        updateWeaponStats();
+        return;
     }
-    
+
+    const offOptions = myCharacterData.weapons.filter(w => w.id !== currentMainHandId && getEquipSlots(w.name).canOff);
+
+    offHandContainer.hidden = false;
+    offHandSelectElement.innerHTML = '<option value="">None</option>';
+
+    offOptions.forEach(w => {
+        const opt = document.createElement('option');
+        opt.value = w.id;
+        opt.textContent = weaponDisplayNames[w.id] || w.name;
+        offHandSelectElement.appendChild(opt);
+    });
+
+    const fallbackOffId = offOptions[0]?.id || '';
+    const selectedOffId = offOptions.some(w => w.id === currentOffHandId) ? currentOffHandId : fallbackOffId;
+    currentOffHandId = selectedOffId || null;
+    offHandSelectElement.value = selectedOffId;
+
     updateWeaponStats();
 }
 
@@ -343,6 +352,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         try {
             const jsonString = decodeBase64ToUnicode(base64String);
             myCharacterData = JSON.parse(jsonString);
+            normalizeWeapons(myCharacterData);
 
             displayCharacter(myCharacterData);
             populateWeaponSelectors();
