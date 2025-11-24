@@ -270,6 +270,21 @@ function aptitudeConstraint(levelSelectElement, potencySelectElement, controlSel
   aptitudeDisplay.innerHTML = currentLevel - (parseInt(potencySelectElement.value) + parseInt(controlSelectElement.value));
 }
 
+function adjustNumericInput(inputEl, delta) {
+  if (!inputEl) return;
+  const min = inputEl.min !== undefined && inputEl.min !== '' ? parseInt(inputEl.min) : -Infinity;
+  const max = inputEl.max !== undefined && inputEl.max !== '' ? parseInt(inputEl.max) : Infinity;
+  const current = parseInt(inputEl.value) || 0;
+  const next = Math.min(max, Math.max(min, current + delta));
+
+  if (next !== current) {
+    inputEl.value = next;
+  }
+
+  // Trigger existing change handlers to enforce constraints and downstream updates
+  inputEl.dispatchEvent(new Event('change'));
+}
+
 function encodeUnicodeToBase64(obj) {
   const json = JSON.stringify(obj);
   const compressed = pako.gzip(json);
@@ -304,12 +319,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   const playerNameSelectElement = document.getElementById("player_name_selection");
 
   const levelSelectElement = document.getElementById("level_selection");
+  const levelDecrementButton = document.getElementById("level_decrement");
+  const levelIncrementButton = document.getElementById("level_increment");
 
   const pathSelectElement = document.getElementById("path_selection");
   const branchSelectElement = document.getElementById("branch_selection");
 
   const potencySelectElement = document.getElementById("potency_selection");
   const controlSelectElement = document.getElementById("control_selection");
+  const potencyDecrementButton = document.getElementById("potency_decrement");
+  const potencyIncrementButton = document.getElementById("potency_increment");
+  const controlDecrementButton = document.getElementById("control_decrement");
+  const controlIncrementButton = document.getElementById("control_increment");
 
   const aptitudeDisplay = document.getElementById("remaining_aptitude_display");
 
@@ -382,6 +403,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   potencySelectElement.addEventListener('change', () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement, aptitudeDisplay));
 
   controlSelectElement.addEventListener('change', () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement, aptitudeDisplay));
+
+  // numeric controls (+/-)
+  levelDecrementButton.addEventListener('click', () => adjustNumericInput(levelSelectElement, -1));
+  levelIncrementButton.addEventListener('click', () => adjustNumericInput(levelSelectElement, 1));
+
+  potencyDecrementButton.addEventListener('click', () => adjustNumericInput(potencySelectElement, -1));
+  potencyIncrementButton.addEventListener('click', () => adjustNumericInput(potencySelectElement, 1));
+
+  controlDecrementButton.addEventListener('click', () => adjustNumericInput(controlSelectElement, -1));
+  controlIncrementButton.addEventListener('click', () => adjustNumericInput(controlSelectElement, 1));
 
   // populate path techniques once selected
   pathSelectElement.addEventListener('change', () => {
