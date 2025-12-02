@@ -30,20 +30,82 @@ async function readCommon() {
 
 const RESISTANCE_NAMES = ["Parry", "Warding", "Constitution", "Evasion"];
 
-function buildStaticLookups(commonData, pathsData, branchesData) {
-  return {
-    pathNames: Object.keys(pathsData || {}),
-    branchNames: Object.keys(branchesData || {}),
-    armorNames: (commonData?.Armors || []).map(a => a.Name),
-    weaponNames: (commonData?.Weapons || [])
-      .filter(w => w.Name !== 'HORIZONTAL_RULE')
-      .map(w => w.Name)
-  };
+function normalizeEntry(entry, defaultName) {
+  const id = entry?.Id ?? entry?.Name ?? defaultName;
+  const name = entry?.Name ?? defaultName ?? id;
+  return { id, name, raw: entry };
 }
 
-function nameToIndex(list, value) {
-  if (!Array.isArray(list)) return -1;
-  return list.indexOf(value);
+function compareById(a, b) {
+  const aId = a?.id ?? '';
+  const bId = b?.id ?? '';
+  return String(aId).localeCompare(String(bId), undefined, { numeric: true, sensitivity: 'base' });
+}
+
+function buildLookupFromArray(items) {
+  const list = (items || [])
+    .map(item => normalizeEntry(item))
+    .filter(e => e.id && e.name)
+    .sort(compareById);
+
+  const indexById = {};
+  const idByName = {};
+  const nameById = {};
+
+  list.forEach((entry, idx) => {
+    indexById[entry.id] = idx;
+    idByName[entry.name] = entry.id;
+    idByName[entry.id] = entry.id;
+    nameById[entry.id] = entry.name;
+  });
+
+  return { list, indexById, idByName, nameById };
+}
+
+function buildLookupFromObject(obj) {
+  const entries = Object.entries(obj || {}).map(([name, value]) => normalizeEntry(value, name));
+  const list = entries
+    .filter(e => e.id && e.name)
+    .sort(compareById);
+
+  const indexById = {};
+  const idByName = {};
+  const nameById = {};
+  const rawById = {};
+
+  list.forEach((entry, idx) => {
+    indexById[entry.id] = idx;
+    idByName[entry.name] = entry.id;
+    idByName[entry.id] = entry.id;
+    nameById[entry.id] = entry.name;
+    rawById[entry.id] = entry.raw;
+  });
+
+  return { list, indexById, idByName, nameById, rawById };
+}
+
+function buildNestedLookup(parentLookup, dataMap, field) {
+  const nested = {};
+  (parentLookup?.list || []).forEach(entry => {
+    const name = parentLookup.nameById?.[entry.id] || entry.name;
+    const raw = (dataMap && dataMap[name]) || entry.raw || {};
+    const list = Array.isArray(raw?.[field]) ? raw[field] : [];
+    nested[entry.id] = buildLookupFromArray(
+      list.map(item => (typeof item === 'string' ? { Name: item } : item))
+    );
+  });
+  return nested;
+}
+
+function getIndexByName(lookup, name) {
+  if (!lookup || !name || name === 'not_selected') return -1;
+  const id = lookup.idByName?.[name] ?? name;
+  const idx = lookup.indexById?.[id];
+  return typeof idx === 'number' ? idx : -1;
+}
+
+function getNameByIndex(lookup, idx) {
+  return lookup?.list?.[idx]?.name || null;
 }
 
 function mapDamageTypeToCode(value) {
@@ -51,6 +113,28 @@ function mapDamageTypeToCode(value) {
   if (value === 'Magical') return 1;
   if (value === 'Armor-ignoring') return 2;
   return -1;
+}
+
+function buildStaticLookups(commonData, pathsData, branchesData) {
+  const paths = buildLookupFromObject(pathsData || {});
+  const branches = buildLookupFromObject(branchesData || {});
+  const armors = buildLookupFromArray((commonData?.Armors || []));
+  const weapons = buildLookupFromArray((commonData?.Weapons || []).filter(w => w.Name !== 'HORIZONTAL_RULE'));
+  const pathTechniques = buildNestedLookup(paths, pathsData, 'Techniques');
+  const branchTechniques = buildNestedLookup(branches, branchesData, 'Techniques');
+  const pathPets = buildNestedLookup(paths, pathsData, 'Pets');
+  const branchPets = buildNestedLookup(branches, branchesData, 'Pets');
+
+  return {
+    paths,
+    branches,
+    armors,
+    weapons,
+    pathTechniques,
+    branchTechniques,
+    pathPets,
+    branchPets
+  };
 }
 
 function populateClass(selectElement, classes) {
@@ -80,7 +164,7 @@ function populateArmor(selectElement, commonData) {
 
   commonData["Armors"].forEach(armorObject => {
     const opt = document.createElement('option');
-    opt.value = armorObject["Name"];
+    opt.value = armorObject["Id"] || armorObject["Name"];
     opt.textContent = armorObject["Name"];
     selectElement.appendChild(opt);
   });
@@ -103,7 +187,7 @@ function populateWeapon(selectElement, commonData, isMainHand) {
         (!isMainHand && weaponObject["isLight"] == true))
     ) {
       const opt = document.createElement('option');
-      opt.value = weaponObject["Name"];
+      opt.value = weaponObject["Id"] || weaponObject["Name"];
       opt.textContent = weaponObject["Name"];
       selectElement.appendChild(opt);
     }
@@ -123,7 +207,7 @@ function weaponConstraint(selectElement, offhandElement, commonData) {
     return true;
   }
 
-  const result = commonData["Weapons"].find(item => item.Name === selected);
+  const result = commonData["Weapons"].find(item => item.Name === selected || item.Id === selected);
 
   if (result["Type"] == "two_hand") {
     // Two-handed selection: hide and clear off-hand so stale values are not submitted
@@ -162,9 +246,13 @@ function populateTechnique(selectedElement, selectedClass, classData) {
 
     select.innerHTML = '<option value="not_selected">Not selected</option>';
 
-    classData[selectedClass]["Techniques"].forEach(techniqueName => {
+    (classData[selectedClass]?.["Techniques"] || []).forEach(techniqueEntry => {
+      const techniqueName = typeof techniqueEntry === 'string'
+        ? techniqueEntry
+        : (techniqueEntry?.Name || techniqueEntry?.Id);
+      if (!techniqueName) return;
       const opt = document.createElement('option');
-      opt.value = techniqueName;
+      opt.value = techniqueEntry?.Id || techniqueName;
       opt.textContent = techniqueName;
       select.appendChild(opt);
     });
@@ -219,8 +307,10 @@ function populatePets(divElement, selectedClass, classData) {
 
     classData[selectedClass]["Pets"].forEach(pet => {
       const opt = document.createElement('option');
-      opt.value = pet["Name"];
-      opt.textContent = pet["Name"];
+      const petName = pet?.Name || pet?.Id;
+      if (!petName) return;
+      opt.value = pet?.Id || petName;
+      opt.textContent = petName;
       petSelectElement.appendChild(opt);
     });
 
@@ -480,14 +570,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   // pet damage type constraint
   const pathPetSelector = pathPetDivElement.querySelector('select');
   pathPetSelector.addEventListener('change', () => {
-    let selectedPathPetObj = myPaths[pathSelectElement.value].Pets.find(w => w.Name === pathPetSelector.value);
+    const pets = (myPaths[pathSelectElement.value] || {}).Pets || [];
+    let selectedPathPetObj = pets.find(w => w.Name === pathPetSelector.value || w.Id === pathPetSelector.value);
     populatePetDamageType(pathPetDamageTypeDivElement, selectedPathPetObj);
 
   });
 
   const branchPetSelector = branchPetDivElement.querySelector('select');
   branchPetSelector.addEventListener('change', () => {
-    let selectedBranchPetObj = myBranches[branchSelectElement.value].Pets.find(w => w.Name === branchPetSelector.value);
+    const pets = (myBranches[branchSelectElement.value] || {}).Pets || [];
+    let selectedBranchPetObj = pets.find(w => w.Name === branchPetSelector.value || w.Id === branchPetSelector.value);
     populatePetDamageType(branchPetDamageTypeDivElement, selectedBranchPetObj);
 
   });
@@ -570,9 +662,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const chosenBranchPetDamageType = branchPetDamageTypeDivElement.querySelector('select').value;
 
     const lookups = buildStaticLookups(myCommon, myPaths, myBranches);
+    const pathId = lookups.paths.idByName?.[myPath] ?? myPath;
+    const branchId = lookups.branches.idByName?.[myBranch] ?? myBranch;
+    const resistanceLookup = buildLookupFromArray(RESISTANCE_NAMES.map(name => ({ Id: name, Name: name })));
 
     // Keep this ordering in sync with the decoder in outputscript.js:
     // [0 version, 1 name, 2 playerName, 3 level, 4 potency, 5 control, 6 pathIndex, 7 branchIndex, 8 armorIndex, 9 weaponSlotIndices[main1, off1, main2, off2], 10 pathTechniqueIndices[], 11 branchTechniqueIndices[], 12 pathPetIndex, 13 pathPetDamageTypeCode, 14 branchPetIndex, 15 branchPetDamageTypeCode, 16 majorResistanceIndex, 17 minor1Index, 18 minor2Index, 19 minor3Index]
+    // Indices are derived from ID-sorted lists so JSON ordering does not affect payload stability.
     const payload = [
       1,
       characterNameSelectElement.value,
@@ -580,29 +676,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       myLevel,
       parseInt(potencySelectElement.value),
       parseInt(controlSelectElement.value),
-      nameToIndex(lookups.pathNames, myPath),
-      nameToIndex(lookups.branchNames, myBranch),
-      nameToIndex(lookups.armorNames, armorSelectElement.value),
+      getIndexByName(lookups.paths, myPath),
+      getIndexByName(lookups.branches, myBranch),
+      getIndexByName(lookups.armors, armorSelectElement.value),
       [
-        nameToIndex(lookups.weaponNames, mainWeapon1SelectElement.value),
-        nameToIndex(lookups.weaponNames, offWeapon1SelectElement.value),
-        nameToIndex(lookups.weaponNames, mainWeapon2SelectElement.value),
-        nameToIndex(lookups.weaponNames, offWeapon2SelectElement.value)
+        getIndexByName(lookups.weapons, mainWeapon1SelectElement.value),
+        getIndexByName(lookups.weapons, offWeapon1SelectElement.value),
+        getIndexByName(lookups.weapons, mainWeapon2SelectElement.value),
+        getIndexByName(lookups.weapons, offWeapon2SelectElement.value)
       ],
       myPathTechniques
-        .map(name => nameToIndex((myPaths[myPath]?.Techniques) || [], name))
+        .map(name => getIndexByName(lookups.pathTechniques[pathId], name))
         .filter(idx => idx >= 0),
       myBranchTechniques
-        .map(name => nameToIndex((myBranches[myBranch]?.Techniques) || [], name))
+        .map(name => getIndexByName(lookups.branchTechniques[branchId], name))
         .filter(idx => idx >= 0),
-      nameToIndex((myPaths[myPath]?.Pets || []).map(p => p.Name), chosenPathPet),
+      getIndexByName(lookups.pathPets[pathId], chosenPathPet),
       mapDamageTypeToCode(chosenPathPetDamageType),
-      nameToIndex((myBranches[myBranch]?.Pets || []).map(p => p.Name), chosenBranchPet),
+      getIndexByName(lookups.branchPets[branchId], chosenBranchPet),
       mapDamageTypeToCode(chosenBranchPetDamageType),
-      nameToIndex(RESISTANCE_NAMES, majorResistanceSelectElement.value),
-      nameToIndex(RESISTANCE_NAMES, minor1ResistanceSelectElement.value),
-      nameToIndex(RESISTANCE_NAMES, minor2ResistanceSelectElement.value),
-      nameToIndex(RESISTANCE_NAMES, minor3ResistanceSelectElement.value)
+      getIndexByName(resistanceLookup, majorResistanceSelectElement.value),
+      getIndexByName(resistanceLookup, minor1ResistanceSelectElement.value),
+      getIndexByName(resistanceLookup, minor2ResistanceSelectElement.value),
+      getIndexByName(resistanceLookup, minor3ResistanceSelectElement.value)
     ];
 
     const base64String = encodeUnicodeToBase64(payload);

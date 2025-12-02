@@ -45,20 +45,81 @@ function decodeBase64ToUnicode(base64) {
     return JSON.parse(decoder.decode(bytes));
 }
 
-function buildStaticLookups(commonData, pathsData, branchesData) {
-    return {
-        paths: Object.keys(pathsData || {}),
-        branches: Object.keys(branchesData || {}),
-        armors: (commonData?.Armors || []).map(a => a.Name),
-        weapons: (commonData?.Weapons || [])
-            .filter(w => w.Name !== 'HORIZONTAL_RULE')
-            .map(w => w.Name)
-    };
+function normalizeEntry(entry, defaultName) {
+    const id = entry?.Id ?? entry?.Name ?? defaultName;
+    const name = entry?.Name ?? defaultName ?? id;
+    return { id, name, raw: entry };
 }
 
-function indexToName(list, idx) {
-    if (!Array.isArray(list)) return null;
-    return typeof idx === 'number' && idx >= 0 && idx < list.length ? list[idx] : null;
+function compareById(a, b) {
+    const aId = a?.id ?? '';
+    const bId = b?.id ?? '';
+    return String(aId).localeCompare(String(bId), undefined, { numeric: true, sensitivity: 'base' });
+}
+
+function buildLookupFromArray(items) {
+    const list = (items || [])
+      .map(item => normalizeEntry(item))
+      .filter(e => e.id && e.name)
+      .sort(compareById);
+
+    const indexById = {};
+    const idByName = {};
+    const nameById = {};
+    const rawById = {};
+
+    list.forEach((entry, idx) => {
+      indexById[entry.id] = idx;
+      idByName[entry.name] = entry.id;
+      idByName[entry.id] = entry.id;
+      nameById[entry.id] = entry.name;
+      rawById[entry.id] = entry.raw;
+    });
+
+    return { list, indexById, idByName, nameById, rawById };
+}
+
+function buildLookupFromObject(obj) {
+    const entries = Object.entries(obj || {}).map(([name, value]) => normalizeEntry(value, name));
+    const list = entries
+      .filter(e => e.id && e.name)
+      .sort(compareById);
+
+    const indexById = {};
+    const idByName = {};
+    const nameById = {};
+    const rawById = {};
+
+    list.forEach((entry, idx) => {
+      indexById[entry.id] = idx;
+      idByName[entry.name] = entry.id;
+      idByName[entry.id] = entry.id;
+      nameById[entry.id] = entry.name;
+      rawById[entry.id] = entry.raw;
+    });
+
+    return { list, indexById, idByName, nameById, rawById };
+}
+
+function buildNestedLookup(parentLookup, dataMap, field) {
+    const nested = {};
+    (parentLookup?.list || []).forEach(entry => {
+      const name = parentLookup.nameById?.[entry.id] || entry.name;
+      const raw = (dataMap && dataMap[name]) || entry.raw || {};
+      const list = Array.isArray(raw?.[field]) ? raw[field] : [];
+      nested[entry.id] = buildLookupFromArray(
+        list.map(item => (typeof item === 'string' ? { Name: item } : item))
+      );
+    });
+    return nested;
+}
+
+function getNameByIndex(lookup, idx) {
+    return lookup?.list?.[idx]?.name || null;
+}
+
+function nameFromList(list, idx) {
+    return Array.isArray(list) && typeof idx === 'number' && idx >= 0 && idx < list.length ? list[idx] : null;
 }
 
 function mapDamageCodeToType(code) {
@@ -68,13 +129,34 @@ function mapDamageCodeToType(code) {
     return null;
 }
 
-function buildPetString(petList, petIndex, damageCode) {
-    if (!Array.isArray(petList)) return '';
-    const pet = typeof petIndex === 'number' ? petList[petIndex] : null;
+function buildPetStringFromLookup(petLookup, petIndex, damageCode) {
+    const petEntry = petLookup?.list?.[petIndex];
     const damageType = mapDamageCodeToType(damageCode);
 
-    if (!pet || !damageType) return '';
-    return `${pet.Name} pet (${damageType.toLowerCase()})`;
+    if (!petEntry || !damageType) return '';
+    return `${petEntry.name} pet (${damageType.toLowerCase()})`;
+}
+
+function buildStaticLookups(commonData, pathsData, branchesData) {
+    const paths = buildLookupFromObject(pathsData || {});
+    const branches = buildLookupFromObject(branchesData || {});
+    const armors = buildLookupFromArray((commonData?.Armors || []));
+    const weapons = buildLookupFromArray((commonData?.Weapons || []).filter(w => w.Name !== 'HORIZONTAL_RULE'));
+    const pathTechniques = buildNestedLookup(paths, pathsData, 'Techniques');
+    const branchTechniques = buildNestedLookup(branches, branchesData, 'Techniques');
+    const pathPets = buildNestedLookup(paths, pathsData, 'Pets');
+    const branchPets = buildNestedLookup(branches, branchesData, 'Pets');
+
+    return {
+        paths,
+        branches,
+        armors,
+        weapons,
+        pathTechniques,
+        branchTechniques,
+        pathPets,
+        branchPets
+    };
 }
 
 function getAvailableAbilities(abilities, myLevel) {
@@ -93,9 +175,10 @@ function prepareResistance(base, name, major, minors) {
     return base + bonus;
 }
 
-function rebuildCharacterFromArray(packedArray, lookups, datasets) {
+function rebuildCharacterFromArray(packedArray, lookups) {
     // Keep this ordering in sync with the encoder in script.js:
     // [0 version, 1 name, 2 playerName, 3 level, 4 potency, 5 control, 6 pathIndex, 7 branchIndex, 8 armorIndex, 9 weaponSlotIndices[main1, off1, main2, off2], 10 pathTechniqueIndices[], 11 branchTechniqueIndices[], 12 pathPetIndex, 13 pathPetDamageTypeCode, 14 branchPetIndex, 15 branchPetDamageTypeCode, 16 majorResistanceIndex, 17 minor1Index, 18 minor2Index, 19 minor3Index]
+    // Indices are derived from ID-sorted lists so JSON ordering does not affect payload stability.
     const [
         version,
         name,
@@ -123,16 +206,20 @@ function rebuildCharacterFromArray(packedArray, lookups, datasets) {
     const numericPotency = Number(potency) || 0;
     const numericControl = Number(control) || 0;
 
-    const pathName = indexToName(lookups.paths, pathIndex) || 'not_selected';
-    const branchName = indexToName(lookups.branches, branchIndex) || 'not_selected';
-    const armorName = indexToName(lookups.armors, armorIndex) || 'not_selected';
+    const pathEntry = lookups.paths.list?.[pathIndex] || {};
+    const branchEntry = lookups.branches.list?.[branchIndex] || {};
+    const armorEntry = lookups.armors.list?.[armorIndex] || {};
 
-    const pathData = (datasets.paths && datasets.paths[pathName]) || {};
-    const branchData = (datasets.branches && datasets.branches[branchName]) || {};
-    const armorData = (datasets.common?.Armors || []).find(a => a.Name === armorName);
+    const pathName = pathEntry.name || 'not_selected';
+    const branchName = branchEntry.name || 'not_selected';
+    const armorName = armorEntry.name || 'not_selected';
+
+    const pathData = pathEntry.raw || {};
+    const branchData = branchEntry.raw || {};
+    const armorData = armorEntry.raw || null;
 
     const weaponNames = (weaponSlotIndices || [])
-        .map(idx => indexToName(lookups.weapons, idx))
+        .map(idx => getNameByIndex(lookups.weapons, idx))
         .filter(Boolean);
 
     const weapons = weaponNames.map((weaponName, index) => ({
@@ -140,15 +227,15 @@ function rebuildCharacterFromArray(packedArray, lookups, datasets) {
         name: weaponName
     }));
 
-    const pathTechniqueList = Array.isArray(pathData.Techniques) ? pathData.Techniques : [];
-    const branchTechniqueList = Array.isArray(branchData.Techniques) ? branchData.Techniques : [];
+    const pathTechLookup = lookups.pathTechniques[pathEntry.id];
+    const branchTechLookup = lookups.branchTechniques[branchEntry.id];
 
     const pathTechniques = (pathTechniqueIndices || [])
-        .map(idx => pathTechniqueList[idx])
+        .map(idx => getNameByIndex(pathTechLookup, idx))
         .filter(Boolean);
 
     const branchTechniques = (branchTechniqueIndices || [])
-        .map(idx => branchTechniqueList[idx])
+        .map(idx => getNameByIndex(branchTechLookup, idx))
         .filter(Boolean);
 
     const health = pathData.Health || 0;
@@ -158,9 +245,9 @@ function rebuildCharacterFromArray(packedArray, lookups, datasets) {
     const pArmor = armorData ? armorData.PArmor : 0;
     const mArmor = armorData ? armorData.MArmor : 0;
 
-    const majorName = indexToName(RESISTANCE_NAMES, majorResIndex) || 'not_selected';
+    const majorName = nameFromList(RESISTANCE_NAMES, majorResIndex) || 'not_selected';
     const minorNames = [minor1Index, minor2Index, minor3Index]
-        .map(idx => indexToName(RESISTANCE_NAMES, idx))
+        .map(idx => nameFromList(RESISTANCE_NAMES, idx))
         .filter(Boolean);
 
     const resistanceBase = 4 + Math.floor((numericLevel + 1) / 2);
@@ -171,8 +258,8 @@ function rebuildCharacterFromArray(packedArray, lookups, datasets) {
     const pathAbilities = getAvailableAbilities(pathData.Abilities, numericLevel);
     const branchAbilities = getAvailableAbilities(branchData.Abilities, numericLevel);
 
-    const pathPet = buildPetString(pathData.Pets, pathPetIndex, pathPetDamageCode);
-    const branchPet = buildPetString(branchData.Pets, branchPetIndex, branchPetDamageCode);
+    const pathPet = buildPetStringFromLookup(lookups.pathPets[pathEntry.id], pathPetIndex, pathPetDamageCode);
+    const branchPet = buildPetStringFromLookup(lookups.branchPets[branchEntry.id], branchPetIndex, branchPetDamageCode);
 
     return {
         name,
@@ -199,9 +286,9 @@ function rebuildCharacterFromArray(packedArray, lookups, datasets) {
     };
 }
 
-function unpackCharacterPayload(rawPayload, lookups, datasets) {
+function unpackCharacterPayload(rawPayload, lookups) {
     if (!Array.isArray(rawPayload)) return null;
-    return rebuildCharacterFromArray(rawPayload, lookups, datasets);
+    return rebuildCharacterFromArray(rawPayload, lookups);
 }
 
 function getWeaponData(weaponName) {
@@ -534,11 +621,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (base64String) {
         try {
             const rawPayload = decodeBase64ToUnicode(base64String);
-            const decodedCharacter = unpackCharacterPayload(rawPayload, lookups, {
-                common: myCommon,
-                paths: myPaths,
-                branches: myBranches
-            });
+            const decodedCharacter = unpackCharacterPayload(rawPayload, lookups);
 
             if (!decodedCharacter) {
                 throw new Error('Character payload missing or invalid.');

@@ -1,129 +1,281 @@
 {
     "Wildbond": {
         "Techniques": [
-            "Commune",
-            "Distract",
-            "Find",
-            "Go For Eyes",
-            "Grab and Drag",
-            "Lick Wounds",
-            "Pounce",
-            "Rush",
-            "Savagery",
-            "Sweeping Attack"
+            {
+                "Id": 1,
+                "Name": "Commune"
+            },
+            {
+                "Id": 2,
+                "Name": "Distract"
+            },
+            {
+                "Id": 3,
+                "Name": "Find"
+            },
+            {
+                "Id": 4,
+                "Name": "Go For Eyes"
+            },
+            {
+                "Id": 5,
+                "Name": "Grab and Drag"
+            },
+            {
+                "Id": 6,
+                "Name": "Lick Wounds"
+            },
+            {
+                "Id": 7,
+                "Name": "Pounce"
+            },
+            {
+                "Id": 8,
+                "Name": "Rush"
+            },
+            {
+                "Id": 9,
+                "Name": "Savagery"
+            },
+            {
+                "Id": 10,
+                "Name": "Sweeping Attack"
+            }
         ],
         "Abilities": [
             {
                 "Level": 1,
-                "Name": "Call Pet"
+                "Name": "Call Pet",
+                "Id": 1
             }
         ],
         "Pets": [
             {
                 "Name": "Striker",
-                "DamageTypeArmorIgnoring": false
+                "DamageTypeArmorIgnoring": false,
+                "Id": 1
             },
             {
                 "Name": "Sharpshooter",
-                "DamageTypeArmorIgnoring": false
+                "DamageTypeArmorIgnoring": false,
+                "Id": 2
             },
             {
                 "Name": "Tough",
-                "DamageTypeArmorIgnoring": false
+                "DamageTypeArmorIgnoring": false,
+                "Id": 3
             },
             {
                 "Name": "Scout",
-                "DamageTypeArmorIgnoring": true
+                "DamageTypeArmorIgnoring": true,
+                "Id": 4
             }
-        ]
+        ],
+        "Id": 1,
+        "Name": "Wildbond"
     },
     "Warwise": {
         "Techniques": [
-            "Adapt to Elevation",
-            "Adapt to Formation",
-            "Adapt to Terrain",
-            "Focused Defense",
-            "Disarm",
-            "Expose Weakness",
-            "Improved Maneuvering",
-            "Insight",
-            "Rally"
+            {
+                "Id": 1,
+                "Name": "Adapt to Elevation"
+            },
+            {
+                "Id": 2,
+                "Name": "Adapt to Formation"
+            },
+            {
+                "Id": 3,
+                "Name": "Adapt to Terrain"
+            },
+            {
+                "Id": 4,
+                "Name": "Focused Defense"
+            },
+            {
+                "Id": 5,
+                "Name": "Disarm"
+            },
+            {
+                "Id": 6,
+                "Name": "Expose Weakness"
+            },
+            {
+                "Id": 7,
+                "Name": "Improved Maneuvering"
+            },
+            {
+                "Id": 8,
+                "Name": "Insight"
+            },
+            {
+                "Id": 9,
+                "Name": "Rally"
+            }
         ],
         "Abilities": [
             {
                 "Level": 1,
-                "Name": "Battle Overseer"
+                "Name": "Battle Overseer",
+                "Id": 1
             },
             {
                 "Level": 1,
-                "Name": "Backup Plan"
+                "Name": "Backup Plan",
+                "Id": 2
             }
-        ]
+        ],
+        "Id": 2,
+        "Name": "Warwise"
     },
     "Iconcraft": {
         "Techniques": [
-            "Affect Self",
-            "Extend Ritual",
-            "Manifest",
-            "Ritual of Empowering",
-            "Ritual of Repulsion",
-            "Ritual of Shrouding",
-            "Ritual of Silence",
-            "Ritual of Stagnation",
-            "Ritual of Unbreaking"
+            {
+                "Id": 1,
+                "Name": "Affect Self"
+            },
+            {
+                "Id": 2,
+                "Name": "Extend Ritual"
+            },
+            {
+                "Id": 3,
+                "Name": "Manifest"
+            },
+            {
+                "Id": 4,
+                "Name": "Ritual of Empowering"
+            },
+            {
+                "Id": 5,
+                "Name": "Ritual of Repulsion"
+            },
+            {
+                "Id": 6,
+                "Name": "Ritual of Shrouding"
+            },
+            {
+                "Id": 7,
+                "Name": "Ritual of Silence"
+            },
+            {
+                "Id": 8,
+                "Name": "Ritual of Stagnation"
+            },
+            {
+                "Id": 9,
+                "Name": "Ritual of Unbreaking"
+            }
         ],
         "Abilities": [
             {
                 "Level": 1,
-                "Name": "Totem"
+                "Name": "Totem",
+                "Id": 1
             },
             {
                 "Level": 1,
-                "Name": "Source of Power"
+                "Name": "Source of Power",
+                "Id": 2
             },
             {
                 "Level": 1,
-                "Name": "Ritual Casting"
+                "Name": "Ritual Casting",
+                "Id": 3
             }
-        ]
+        ],
+        "Id": 3,
+        "Name": "Iconcraft"
     },
     "Hunter": {
         "Techniques": [
-            "Break Armor",
-            "Execute",
-            "Readiness",
-            "Sneak Attack",
-            "Weak Point"
+            {
+                "Id": 1,
+                "Name": "Break Armor"
+            },
+            {
+                "Id": 2,
+                "Name": "Execute"
+            },
+            {
+                "Id": 3,
+                "Name": "Readiness"
+            },
+            {
+                "Id": 4,
+                "Name": "Sneak Attack"
+            },
+            {
+                "Id": 5,
+                "Name": "Weak Point"
+            }
         ],
         "Abilities": [
             {
                 "Level": 1,
-                "Name": "Choose Prey"
+                "Name": "Choose Prey",
+                "Id": 1
             }
-        ]
+        ],
+        "Id": 4,
+        "Name": "Hunter"
     },
     "Druid": {
         "Techniques": [
-            "Cycle of Cultivation",
-            "Elemental Armor",
-            "Elemental Ground",
-            "Elemental Storm",
-            "Elemental Weapon",
-            "Flaming Trail",
-            "Ice Shards",
-            "Landshape",
-            "Metalskin",
-            "Sprout"
+            {
+                "Id": 1,
+                "Name": "Cycle of Cultivation"
+            },
+            {
+                "Id": 2,
+                "Name": "Elemental Armor"
+            },
+            {
+                "Id": 3,
+                "Name": "Elemental Ground"
+            },
+            {
+                "Id": 4,
+                "Name": "Elemental Storm"
+            },
+            {
+                "Id": 5,
+                "Name": "Elemental Weapon"
+            },
+            {
+                "Id": 6,
+                "Name": "Flaming Trail"
+            },
+            {
+                "Id": 7,
+                "Name": "Ice Shards"
+            },
+            {
+                "Id": 8,
+                "Name": "Landshape"
+            },
+            {
+                "Id": 9,
+                "Name": "Metalskin"
+            },
+            {
+                "Id": 10,
+                "Name": "Sprout"
+            }
         ],
         "Abilities": [
             {
                 "Level": 1,
-                "Name": "Element-enveloped"
+                "Name": "Element-enveloped",
+                "Id": 1
             },
             {
                 "Level": 1,
-                "Name": "Cycle of Suppression"
+                "Name": "Cycle of Suppression",
+                "Id": 2
             }
-        ]
+        ],
+        "Id": 5,
+        "Name": "Druid"
     }
 }

@@ -2,154 +2,290 @@
     "Warrior": {
         "Health": 80,
         "Techniques": [
-            "Brutal Attack",
-            "Crushing Charge",
-            "Defensive Strike",
-            "Double Opportunity",
-            "Extend Preparation",
-            "Graze",
-            "Hamstring",
-            "Reaching Attack",
-            "Stability",
-            "Tackle"
+            {
+                "Id": 1,
+                "Name": "Brutal Attack"
+            },
+            {
+                "Id": 2,
+                "Name": "Crushing Charge"
+            },
+            {
+                "Id": 3,
+                "Name": "Defensive Strike"
+            },
+            {
+                "Id": 4,
+                "Name": "Double Opportunity"
+            },
+            {
+                "Id": 5,
+                "Name": "Extend Preparation"
+            },
+            {
+                "Id": 6,
+                "Name": "Graze"
+            },
+            {
+                "Id": 7,
+                "Name": "Hamstring"
+            },
+            {
+                "Id": 8,
+                "Name": "Reaching Attack"
+            },
+            {
+                "Id": 9,
+                "Name": "Stability"
+            },
+            {
+                "Id": 10,
+                "Name": "Tackle"
+            }
         ],
         "Abilities": [
             {
                 "Level": 1,
-                "Name": "Critical Training"
+                "Name": "Critical Training",
+                "Id": 1
             },
             {
                 "Level": 3,
-                "Name": "Weapon Expertise"
+                "Name": "Weapon Expertise",
+                "Id": 2
             },
             {
                 "Level": 5,
-                "Name": "Keen Rejuvenation"
+                "Name": "Keen Rejuvenation",
+                "Id": 3
             },
             {
                 "Level": 7,
-                "Name": "Armor Expertise"
+                "Name": "Armor Expertise",
+                "Id": 4
             },
             {
                 "Level": 10,
-                "Name": "Veteran Combatant"
+                "Name": "Veteran Combatant",
+                "Id": 5
             }
-        ]
+        ],
+        "Id": 1,
+        "Name": "Warrior"
     },
-
     "Sorcerer": {
         "Health": 60,
         "Techniques": [
-            "Absorption",
-            "Alteration",
-            "Bane",
-            "Call Chaos",
-            "Curse Transfer",
-            "Mark of Sacrifice",
-            "Pain Illusion",
-            "Purge Blessings",
-            "Spread Curses",
-            "Weaken Body"
+            {
+                "Id": 1,
+                "Name": "Absorption"
+            },
+            {
+                "Id": 2,
+                "Name": "Alteration"
+            },
+            {
+                "Id": 3,
+                "Name": "Bane"
+            },
+            {
+                "Id": 4,
+                "Name": "Call Chaos"
+            },
+            {
+                "Id": 5,
+                "Name": "Curse Transfer"
+            },
+            {
+                "Id": 6,
+                "Name": "Mark of Sacrifice"
+            },
+            {
+                "Id": 7,
+                "Name": "Pain Illusion"
+            },
+            {
+                "Id": 8,
+                "Name": "Purge Blessings"
+            },
+            {
+                "Id": 9,
+                "Name": "Spread Curses"
+            },
+            {
+                "Id": 10,
+                "Name": "Weaken Body"
+            }
         ],
         "Abilities": [
             {
                 "Level": 1,
-                "Name": "Boon of Underworld"
+                "Name": "Boon of Underworld",
+                "Id": 1
             },
             {
                 "Level": 3,
-                "Name": "Equivalent Exchange"
+                "Name": "Equivalent Exchange",
+                "Id": 2
             },
             {
                 "Level": 5,
-                "Name": "Blood is Power"
+                "Name": "Blood is Power",
+                "Id": 3
             },
             {
                 "Level": 7,
-                "Name": "Death's Edge"
+                "Name": "Death's Edge",
+                "Id": 4
             },
             {
                 "Level": 10,
-                "Name": "Hand of the Underworld"
+                "Name": "Hand of the Underworld",
+                "Id": 5
             }
-        ]
+        ],
+        "Id": 2,
+        "Name": "Sorcerer"
     },
-
     "Shaman": {
         "Health": 60,
         "Techniques": [
-            "Astral Travel",
-            "Clairvoyance",
-            "Cleanse",
-            "Divination",
-            "Guest Soul",
-            "Heal Creatures",
-            "Message",
-            "Protect Creature",
-            "Quell Effects",
-            "Transfer Energy"
+            {
+                "Id": 1,
+                "Name": "Astral Travel"
+            },
+            {
+                "Id": 2,
+                "Name": "Clairvoyance"
+            },
+            {
+                "Id": 3,
+                "Name": "Cleanse"
+            },
+            {
+                "Id": 4,
+                "Name": "Divination"
+            },
+            {
+                "Id": 5,
+                "Name": "Guest Soul"
+            },
+            {
+                "Id": 6,
+                "Name": "Heal Creatures"
+            },
+            {
+                "Id": 7,
+                "Name": "Message"
+            },
+            {
+                "Id": 8,
+                "Name": "Protect Creature"
+            },
+            {
+                "Id": 9,
+                "Name": "Quell Effects"
+            },
+            {
+                "Id": 10,
+                "Name": "Transfer Energy"
+            }
         ],
         "Abilities": [
             {
                 "Level": 1,
-                "Name": "Passage"
+                "Name": "Passage",
+                "Id": 1
             },
             {
                 "Level": 3,
-                "Name": "Simple Healing"
+                "Name": "Simple Healing",
+                "Id": 2
             },
             {
                 "Level": 5,
-                "Name": "Banish"
+                "Name": "Banish",
+                "Id": 3
             },
             {
                 "Level": 7,
-                "Name": "Pray"
+                "Name": "Pray",
+                "Id": 4
             },
             {
                 "Level": 10,
-                "Name": "Soul-bound"
+                "Name": "Soul-bound",
+                "Id": 5
             }
-        ]
+        ],
+        "Id": 3,
+        "Name": "Shaman"
     },
-
     "Bard": {
         "Health": 70,
         "Techniques": [
-            "Poem of Beauty",
-            "Poem of Brutes",
-            "Poem of Humility",
-            "Poem of Fury",
-            "Poem of Freedom",
-            "Poem of Praise",
-            "Refrain"
+            {
+                "Id": 1,
+                "Name": "Poem of Beauty"
+            },
+            {
+                "Id": 2,
+                "Name": "Poem of Brutes"
+            },
+            {
+                "Id": 3,
+                "Name": "Poem of Humility"
+            },
+            {
+                "Id": 4,
+                "Name": "Poem of Fury"
+            },
+            {
+                "Id": 5,
+                "Name": "Poem of Freedom"
+            },
+            {
+                "Id": 6,
+                "Name": "Poem of Praise"
+            },
+            {
+                "Id": 7,
+                "Name": "Refrain"
+            }
         ],
         "Abilities": [
             {
                 "Level": 1,
-                "Name": "Echo"
+                "Name": "Echo",
+                "Id": 1
             },
             {
                 "Level": 1,
-                "Name": "Magical Poetry"
+                "Name": "Magical Poetry",
+                "Id": 2
             },
             {
                 "Level": 3,
-                "Name": "In Rhythm"
+                "Name": "In Rhythm",
+                "Id": 3
             },
             {
                 "Level": 5,
-                "Name": "Resonance"
+                "Name": "Resonance",
+                "Id": 4
             },
             {
                 "Level": 7,
-                "Name": "Duet"
+                "Name": "Duet",
+                "Id": 5
             },
             {
                 "Level": 10,
-                "Name": "Fade Out"
+                "Name": "Fade Out",
+                "Id": 6
             }
-        ]
+        ],
+        "Id": 4,
+        "Name": "Bard"
     }
-    
 }

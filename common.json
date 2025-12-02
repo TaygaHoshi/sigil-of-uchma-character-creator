@@ -5,42 +5,48 @@
             "PArmor": 0,
             "MArmor": 0,
             "Speed": 8,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 1
         },
         {
             "Name": "Robes",
             "PArmor": 0,
             "MArmor": 5,
             "Speed": 6,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 2
         },
         {
             "Name": "Light",
             "PArmor": 5,
             "MArmor": 0,
             "Speed": 6,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 3
         },
         {
             "Name": "Adventurer",
             "PArmor": 5,
             "MArmor": 5,
             "Speed": 5,
-            "Stealth": -1
+            "Stealth": -1,
+            "Id": 4
         },
         {
             "Name": "Heavy",
             "PArmor": 10,
             "MArmor": 0,
             "Speed": 4,
-            "Stealth": -2
+            "Stealth": -2,
+            "Id": 5
         },
         {
             "Name": "Warded",
             "PArmor": 0,
             "MArmor": 10,
             "Speed": 4,
-            "Stealth": -2
+            "Stealth": -2,
+            "Id": 6
         }
     ],
     "Weapons": [
@@ -53,7 +59,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": -1
+            "Stealth": -1,
+            "Id": 1
         },
         {
             "Name": "Spear",
@@ -64,7 +71,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": -1
+            "Stealth": -1,
+            "Id": 2
         },
         {
             "Name": "Two-handed sword",
@@ -75,7 +83,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 3
         },
         {
             "Name": "War hammer",
@@ -86,7 +95,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 4
         },
         {
             "Name": "Staff",
@@ -97,7 +107,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 5
         },
         {
             "Name": "Crossbow",
@@ -108,7 +119,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 6
         },
         {
             "Name": "Longbow",
@@ -119,7 +131,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": -1
+            "Stealth": -1,
+            "Id": 7
         },
         {
             "Name": "Shortbow",
@@ -130,7 +143,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 8
         },
         {
             "Name": "War drums",
@@ -141,7 +155,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": -2
+            "Stealth": -2,
+            "Id": 9
         },
         {
             "Name": "HORIZONTAL_RULE",
@@ -152,7 +167,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 10
         },
         {
             "Name": "Hatchet",
@@ -163,7 +179,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 11
         },
         {
             "Name": "Curved Sword",
@@ -174,7 +191,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 12
         },
         {
             "Name": "Throwing Spear",
@@ -185,7 +203,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": -1
+            "Stealth": -1,
+            "Id": 13
         },
         {
             "Name": "Scepter",
@@ -196,7 +215,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 14
         },
         {
             "Name": "Wand",
@@ -207,7 +227,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 15
         },
         {
             "Name": "Shortsword",
@@ -218,7 +239,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 16
         },
         {
             "Name": "Dagger",
@@ -229,7 +251,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 17
         },
         {
             "Name": "Unarmed",
@@ -240,7 +263,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 18
         },
         {
             "Name": "HORIZONTAL_RULE",
@@ -251,7 +275,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 19
         },
         {
             "Name": "Shield",
@@ -262,7 +287,8 @@
             "MArmor": 0,
             "Parry": 1,
             "Warding": 0,
-            "Stealth": -1
+            "Stealth": -1,
+            "Id": 20
         },
         {
             "Name": "Focus",
@@ -273,7 +299,8 @@
             "MArmor": 5,
             "Parry": 0,
             "Warding": 1,
-            "Stealth": -1
+            "Stealth": -1,
+            "Id": 21
         },
         {
             "Name": "Charm",
@@ -284,7 +311,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 22
         },
         {
             "Name": "Warhorn",
@@ -295,7 +323,8 @@
             "MArmor": 0,
             "Parry": 0,
             "Warding": 0,
-            "Stealth": 0
+            "Stealth": 0,
+            "Id": 23
         }
     ]
 }
