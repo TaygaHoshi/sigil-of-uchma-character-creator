@@ -1,9 +1,12 @@
 // Global state
 let myCharacterData = null;
 let myCommon = null;
+let myPaths = null;
+let myBranches = null;
 let currentMainHandId = null;
 let currentOffHandId = null;
 let weaponDisplayNames = {};
+const RESISTANCE_NAMES = ["Parry", "Warding", "Constitution", "Evasion"];
 
 async function readCommon() {
   try {
@@ -15,11 +18,217 @@ async function readCommon() {
   }
 }
 
+async function readPaths() {
+  try {
+    const response = await fetch('paths.json');
+    return await response.json();
+  } catch (err) {
+    console.error('Error loading paths.json:', err);
+    throw err;
+  }
+}
+
+async function readBranches() {
+  try {
+    const response = await fetch('branches.json');
+    return await response.json();
+  } catch (err) {
+    console.error('Error loading branches.json:', err);
+    throw err;
+  }
+}
+
 function decodeBase64ToUnicode(base64) {
-    const binary = atob(base64);
-    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
-    const decompressed = pako.ungzip(bytes, { to: 'string' });
-    return JSON.parse(decompressed);
+    const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+    const decoder = new TextDecoder();
+
+    // Primary path: plain base64 JSON (no gzip)
+    try {
+        return JSON.parse(decoder.decode(bytes));
+    } catch (parseError) {
+        // Fallback to old gzip links for backward compatibility
+        try {
+            const decompressed = pako.ungzip(bytes, { to: 'string' });
+            return JSON.parse(decompressed);
+        } catch (gzipError) {
+            throw parseError;
+        }
+    }
+}
+
+function buildStaticLookups(commonData, pathsData, branchesData) {
+    return {
+        paths: Object.keys(pathsData || {}),
+        branches: Object.keys(branchesData || {}),
+        armors: (commonData?.Armors || []).map(a => a.Name),
+        weapons: (commonData?.Weapons || [])
+            .filter(w => w.Name !== 'HORIZONTAL_RULE')
+            .map(w => w.Name)
+    };
+}
+
+function indexToName(list, idx) {
+    if (!Array.isArray(list)) return null;
+    return typeof idx === 'number' && idx >= 0 && idx < list.length ? list[idx] : null;
+}
+
+function mapDamageCodeToType(code) {
+    if (code === 0) return 'Physical';
+    if (code === 1) return 'Magical';
+    if (code === 2) return 'Armor-ignoring';
+    return null;
+}
+
+function buildPetString(petList, petIndex, damageCode) {
+    if (!Array.isArray(petList)) return '';
+    const pet = typeof petIndex === 'number' ? petList[petIndex] : null;
+    const damageType = mapDamageCodeToType(damageCode);
+
+    if (!pet || !damageType) return '';
+    return `${pet.Name} pet (${damageType.toLowerCase()})`;
+}
+
+function getAvailableAbilities(abilities, myLevel) {
+    if (!Array.isArray(abilities)) return [];
+    return abilities
+      .filter(ability => ability.Level <= myLevel)
+      .map(ability => "Level " + ability.Level + " Ability: " + ability.Name);
+}
+
+function prepareResistance(base, name, major, minors) {
+    let bonus = 0;
+  
+    if (name === major) bonus += 2;
+    bonus += minors.filter(minor => minor === name).length;
+  
+    return base + bonus;
+}
+
+function rebuildCharacterFromArray(packedArray, lookups, datasets) {
+    // Keep this ordering in sync with the encoder in script.js:
+    // [0 version, 1 name, 2 playerName, 3 level, 4 potency, 5 control, 6 pathIndex, 7 branchIndex, 8 armorIndex, 9 weaponSlotIndices[main1, off1, main2, off2], 10 pathTechniqueIndices[], 11 branchTechniqueIndices[], 12 pathPetIndex, 13 pathPetDamageTypeCode, 14 branchPetIndex, 15 branchPetDamageTypeCode, 16 majorResistanceIndex, 17 minor1Index, 18 minor2Index, 19 minor3Index]
+    const [
+        version,
+        name,
+        playerName,
+        level,
+        potency,
+        control,
+        pathIndex,
+        branchIndex,
+        armorIndex,
+        weaponSlotIndices = [],
+        pathTechniqueIndices = [],
+        branchTechniqueIndices = [],
+        pathPetIndex,
+        pathPetDamageCode,
+        branchPetIndex,
+        branchPetDamageCode,
+        majorResIndex,
+        minor1Index,
+        minor2Index,
+        minor3Index
+    ] = packedArray;
+
+    const numericLevel = Number(level) || 0;
+    const numericPotency = Number(potency) || 0;
+    const numericControl = Number(control) || 0;
+
+    const pathName = indexToName(lookups.paths, pathIndex) || 'not_selected';
+    const branchName = indexToName(lookups.branches, branchIndex) || 'not_selected';
+    const armorName = indexToName(lookups.armors, armorIndex) || 'not_selected';
+
+    const pathData = (datasets.paths && datasets.paths[pathName]) || {};
+    const branchData = (datasets.branches && datasets.branches[branchName]) || {};
+    const armorData = (datasets.common?.Armors || []).find(a => a.Name === armorName);
+
+    const weaponNames = (weaponSlotIndices || [])
+        .map(idx => indexToName(lookups.weapons, idx))
+        .filter(Boolean);
+
+    const weapons = weaponNames.map((weaponName, index) => ({
+        id: `w${index + 1}`,
+        name: weaponName
+    }));
+
+    const pathTechniqueList = Array.isArray(pathData.Techniques) ? pathData.Techniques : [];
+    const branchTechniqueList = Array.isArray(branchData.Techniques) ? branchData.Techniques : [];
+
+    const pathTechniques = (pathTechniqueIndices || [])
+        .map(idx => pathTechniqueList[idx])
+        .filter(Boolean);
+
+    const branchTechniques = (branchTechniqueIndices || [])
+        .map(idx => branchTechniqueList[idx])
+        .filter(Boolean);
+
+    const health = pathData.Health || 0;
+    const energy = 10 + 2 * Math.floor(numericLevel / 2);
+
+    const movementSpeed = armorData ? armorData.Speed : 6;
+    const pArmor = armorData ? armorData.PArmor : 0;
+    const mArmor = armorData ? armorData.MArmor : 0;
+
+    const majorName = indexToName(RESISTANCE_NAMES, majorResIndex) || 'not_selected';
+    const minorNames = [minor1Index, minor2Index, minor3Index]
+        .map(idx => indexToName(RESISTANCE_NAMES, idx))
+        .filter(Boolean);
+
+    const resistanceBase = 4 + Math.floor((numericLevel + 1) / 2);
+    const resistances = Object.fromEntries(
+        RESISTANCE_NAMES.map(name => [name, prepareResistance(resistanceBase, name, majorName, minorNames)])
+    );
+
+    const pathAbilities = getAvailableAbilities(pathData.Abilities, numericLevel);
+    const branchAbilities = getAvailableAbilities(branchData.Abilities, numericLevel);
+
+    const pathPet = buildPetString(pathData.Pets, pathPetIndex, pathPetDamageCode);
+    const branchPet = buildPetString(branchData.Pets, branchPetIndex, branchPetDamageCode);
+
+    return {
+        name,
+        playerName,
+        path: pathName,
+        branch: branchName,
+        level: numericLevel,
+        potency: numericPotency,
+        control: numericControl,
+        health,
+        energy,
+        resistances,
+        armor: armorName,
+        pArmor,
+        mArmor,
+        movementSpeed,
+        weapons,
+        pathTechniques,
+        branchTechniques,
+        pathAbilities,
+        branchAbilities,
+        pathPet,
+        branchPet
+    };
+}
+
+function unpackCharacterPayload(rawPayload, lookups, datasets) {
+    if (Array.isArray(rawPayload)) {
+        return rebuildCharacterFromArray(rawPayload, lookups, datasets);
+    }
+
+    if (typeof rawPayload === 'string') {
+        try {
+            const parsed = JSON.parse(rawPayload);
+            return unpackCharacterPayload(parsed, lookups, datasets);
+        } catch (err) {
+            return null;
+        }
+    }
+
+    if (rawPayload && typeof rawPayload === 'object') {
+        return rawPayload;
+    }
+
+    return null;
 }
 
 function getWeaponData(weaponName) {
@@ -333,8 +542,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     const base64String = params.get('q');
 
-    // read common data
-    myCommon = await readCommon();
+    // read static data
+    [myCommon, myPaths, myBranches] = await Promise.all([readCommon(), readPaths(), readBranches()]);
+    const lookups = buildStaticLookups(myCommon, myPaths, myBranches);
 
     document.getElementById("copyButton").addEventListener("click", () => {
         const qRaw = new URLSearchParams(window.location.search).get('q');
@@ -350,8 +560,18 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     if (base64String) {
         try {
-            const jsonString = decodeBase64ToUnicode(base64String);
-            myCharacterData = JSON.parse(jsonString);
+            const rawPayload = decodeBase64ToUnicode(base64String);
+            const decodedCharacter = unpackCharacterPayload(rawPayload, lookups, {
+                common: myCommon,
+                paths: myPaths,
+                branches: myBranches
+            });
+
+            if (!decodedCharacter) {
+                throw new Error('Character payload missing or invalid.');
+            }
+
+            myCharacterData = decodedCharacter;
             normalizeWeapons(myCharacterData);
 
             displayCharacter(myCharacterData);

@@ -28,6 +28,31 @@ async function readCommon() {
   }
 }
 
+const RESISTANCE_NAMES = ["Parry", "Warding", "Constitution", "Evasion"];
+
+function buildStaticLookups(commonData, pathsData, branchesData) {
+  return {
+    pathNames: Object.keys(pathsData || {}),
+    branchNames: Object.keys(branchesData || {}),
+    armorNames: (commonData?.Armors || []).map(a => a.Name),
+    weaponNames: (commonData?.Weapons || [])
+      .filter(w => w.Name !== 'HORIZONTAL_RULE')
+      .map(w => w.Name)
+  };
+}
+
+function nameToIndex(list, value) {
+  if (!Array.isArray(list)) return -1;
+  return list.indexOf(value);
+}
+
+function mapDamageTypeToCode(value) {
+  if (value === 'Physical') return 0;
+  if (value === 'Magical') return 1;
+  if (value === 'Armor-ignoring') return 2;
+  return -1;
+}
+
 function populateClass(selectElement, classes) {
   if (!classes) {
     selectElement.innerHTML = '<option value="">An error has occurred.</option>';;
@@ -287,8 +312,9 @@ function adjustNumericInput(inputEl, delta) {
 
 function encodeUnicodeToBase64(obj) {
   const json = JSON.stringify(obj);
-  const compressed = pako.gzip(json);
-  const binary = String.fromCharCode(...compressed);
+  const bytes = new TextEncoder().encode(json);
+  let binary = '';
+  bytes.forEach(b => binary += String.fromCharCode(b));
   return btoa(binary);
 }
 
@@ -519,25 +545,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const myPath = pathSelectElement.value;
     const myBranch = branchSelectElement.value;
 
-    const myHealth = myPaths[myPath].Health;
-
-    const myEnergy = 10 + 2*Math.floor(myLevel/2);
-
-    //// calculate resistance
-    const resistanceBase = 4 + Math.floor((myLevel + 1) / 2);
-    const myMajor = majorResistanceSelectElement.value;
-    const myMinors = [
-      minor1ResistanceSelectElement.value,
-      minor2ResistanceSelectElement.value,
-      minor3ResistanceSelectElement.value,
-    ];
-
-    const resistanceNames = ["Parry", "Warding", "Constitution", "Evasion"];
-
-    const myResistances = Object.fromEntries(
-      resistanceNames.map(name => [name, prepareResistance(resistanceBase, name, myMajor, myMinors)])
-    );
-
     // Gather all chosen techniques (ignore “not_selected”)
     const pathTechniqueSelectors = Array.from(
       pathTechniqueSelectElement.querySelectorAll('select[id*="_selection_"]')
@@ -559,77 +566,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     const chosenPathPet = pathPetSelector.value;
     const chosenPathPetDamageType = pathPetDamageTypeDivElement.querySelector('select').value;
 
-    let pathPetString = "";
-
-    if (chosenPathPet && chosenPathPet !== "not_selected") {
-      pathPetString = chosenPathPet + " pet (" + chosenPathPetDamageType.toLowerCase() + ")"
-    }
-
     const chosenBranchPet = branchPetSelector.value;
     const chosenBranchPetDamageType = branchPetDamageTypeDivElement.querySelector('select').value;
 
-    let branchPetString = "";
+    const lookups = buildStaticLookups(myCommon, myPaths, myBranches);
 
-    if (chosenBranchPet && chosenBranchPet !== "not_selected") {
-      branchPetString = chosenBranchPet + " pet (" + chosenBranchPetDamageType.toLowerCase() + ")"
-    }
-    
+    // Keep this ordering in sync with the decoder in outputscript.js:
+    // [0 version, 1 name, 2 playerName, 3 level, 4 potency, 5 control, 6 pathIndex, 7 branchIndex, 8 armorIndex, 9 weaponSlotIndices[main1, off1, main2, off2], 10 pathTechniqueIndices[], 11 branchTechniqueIndices[], 12 pathPetIndex, 13 pathPetDamageTypeCode, 14 branchPetIndex, 15 branchPetDamageTypeCode, 16 majorResistanceIndex, 17 minor1Index, 18 minor2Index, 19 minor3Index]
+    const payload = [
+      1,
+      characterNameSelectElement.value,
+      playerNameSelectElement.value,
+      myLevel,
+      parseInt(potencySelectElement.value),
+      parseInt(controlSelectElement.value),
+      nameToIndex(lookups.pathNames, myPath),
+      nameToIndex(lookups.branchNames, myBranch),
+      nameToIndex(lookups.armorNames, armorSelectElement.value),
+      [
+        nameToIndex(lookups.weaponNames, mainWeapon1SelectElement.value),
+        nameToIndex(lookups.weaponNames, offWeapon1SelectElement.value),
+        nameToIndex(lookups.weaponNames, mainWeapon2SelectElement.value),
+        nameToIndex(lookups.weaponNames, offWeapon2SelectElement.value)
+      ],
+      myPathTechniques
+        .map(name => nameToIndex((myPaths[myPath]?.Techniques) || [], name))
+        .filter(idx => idx >= 0),
+      myBranchTechniques
+        .map(name => nameToIndex((myBranches[myBranch]?.Techniques) || [], name))
+        .filter(idx => idx >= 0),
+      nameToIndex((myPaths[myPath]?.Pets || []).map(p => p.Name), chosenPathPet),
+      mapDamageTypeToCode(chosenPathPetDamageType),
+      nameToIndex((myBranches[myBranch]?.Pets || []).map(p => p.Name), chosenBranchPet),
+      mapDamageTypeToCode(chosenBranchPetDamageType),
+      nameToIndex(RESISTANCE_NAMES, majorResistanceSelectElement.value),
+      nameToIndex(RESISTANCE_NAMES, minor1ResistanceSelectElement.value),
+      nameToIndex(RESISTANCE_NAMES, minor2ResistanceSelectElement.value),
+      nameToIndex(RESISTANCE_NAMES, minor3ResistanceSelectElement.value)
+    ];
 
-    // Get abilities <= to my level
-    const myPathAbilities = getAvailableAbilities(myPaths[myPath].Abilities, myLevel);
-    const myBranchAbilities = getAvailableAbilities(myBranches[myBranch].Abilities, myLevel);
-
-    // gather selected weapons into an order-agnostic array
-    const weaponSelections = [
-      mainWeapon1SelectElement.value,
-      offWeapon1SelectElement.value,
-      mainWeapon2SelectElement.value,
-      offWeapon2SelectElement.value
-    ].filter(v => v && v !== "not_selected");
-
-    const weapons = weaponSelections.map((name, index) => ({
-      id: `w${index + 1}`,
-      name
-    }));
-
-    // armor
-    const myArmor = armorSelectElement.value;
-    const armorObj = myCommon.Armors.find(w => w.Name === myArmor);
-
-    const myPArmor = armorObj.PArmor;
-    const myMArmor = armorObj.MArmor;
-
-    // movement speed comes directly from chosen armor
-    const myMovementSpeed = armorObj ? armorObj.Speed : 6;
-
-    // send character data
-    const characterData = {
-      name: characterNameSelectElement.value,
-      playerName: playerNameSelectElement.value,
-      health: myHealth,
-      energy: myEnergy,
-      path: myPath,
-      branch: myBranch,
-      level: levelSelectElement.value,
-      potency: potencySelectElement.value,
-      control: controlSelectElement.value,
-      resistances: myResistances,
-      armor: myArmor,
-      pArmor: myPArmor,
-      mArmor: myMArmor,
-      movementSpeed: myMovementSpeed,
-      weapons,
-      pathTechniques: myPathTechniques,
-      branchTechniques: myBranchTechniques,
-      pathAbilities: myPathAbilities,
-      branchAbilities: myBranchAbilities,
-      pathPet: pathPetString,
-      branchPet: branchPetString
-    };
-
-    // Serialize and encode the data
-    const jsonString = JSON.stringify(characterData);
-    const base64String = encodeUnicodeToBase64(jsonString);
+    const base64String = encodeUnicodeToBase64(payload);
 
     // Construct the shareable URL
     const shareableURL = `output.html?q=${encodeURIComponent(base64String)}`;
