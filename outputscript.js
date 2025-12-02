@@ -42,18 +42,7 @@ function decodeBase64ToUnicode(base64) {
     const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
     const decoder = new TextDecoder();
 
-    // Primary path: plain base64 JSON (no gzip)
-    try {
-        return JSON.parse(decoder.decode(bytes));
-    } catch (parseError) {
-        // Fallback to old gzip links for backward compatibility
-        try {
-            const decompressed = pako.ungzip(bytes, { to: 'string' });
-            return JSON.parse(decompressed);
-        } catch (gzipError) {
-            throw parseError;
-        }
-    }
+    return JSON.parse(decoder.decode(bytes));
 }
 
 function buildStaticLookups(commonData, pathsData, branchesData) {
@@ -211,24 +200,8 @@ function rebuildCharacterFromArray(packedArray, lookups, datasets) {
 }
 
 function unpackCharacterPayload(rawPayload, lookups, datasets) {
-    if (Array.isArray(rawPayload)) {
-        return rebuildCharacterFromArray(rawPayload, lookups, datasets);
-    }
-
-    if (typeof rawPayload === 'string') {
-        try {
-            const parsed = JSON.parse(rawPayload);
-            return unpackCharacterPayload(parsed, lookups, datasets);
-        } catch (err) {
-            return null;
-        }
-    }
-
-    if (rawPayload && typeof rawPayload === 'object') {
-        return rawPayload;
-    }
-
-    return null;
+    if (!Array.isArray(rawPayload)) return null;
+    return rebuildCharacterFromArray(rawPayload, lookups, datasets);
 }
 
 function getWeaponData(weaponName) {
