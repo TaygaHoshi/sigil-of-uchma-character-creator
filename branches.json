@@ -87,21 +87,6 @@
             }
         ]
     },
-    "Hunter": {
-        "Techniques": [
-            "Break Armor",
-            "Execute",
-            "Readiness",
-            "Sneak Attack",
-            "Weak Point"
-        ],
-        "Abilities": [
-            {
-                "Level": 1,
-                "Name": "Choose Prey"
-            }
-        ]
-    },
     "Druid": {
         "Techniques": [
             "Cycle of Cultivation",
