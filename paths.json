@@ -75,7 +75,7 @@
         ]
     },
 
-    "Shaman": {
+    "Guide": {
         "Health": 60,
         "Techniques": [
             "Astral Travel",
