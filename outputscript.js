@@ -2,35 +2,38 @@
 let myCharacterData = null;
 let currentMainHand = null;
 let currentOffHand = null;
+let myResistances = null;
+let basePArmor = 0;
+let baseMArmor = 0;
 
 async function readPaths() {
-  try {
-    const response = await fetch('paths.json');
-    return await response.json();
-  } catch (err) {
-    console.error('Error loading paths.json:', err);
-    throw err;
-  }
+    try {
+        const response = await fetch('paths.json');
+        return await response.json();
+    } catch (err) {
+        console.error('Error loading paths.json:', err);
+        throw err;
+    }
 }
 
 async function readBranches() {
-  try {
-    const response = await fetch('branches.json');
-    return await response.json();
-  } catch (err) {
-    console.error('Error loading branches.json:', err);
-    throw err;
-  }
+    try {
+        const response = await fetch('branches.json');
+        return await response.json();
+    } catch (err) {
+        console.error('Error loading branches.json:', err);
+        throw err;
+    }
 }
 
 async function readCommon() {
-  try {
-    const response = await fetch('common.json');
-    return await response.json();
-  } catch (err) {
-    console.error('Error loading common.json:', err);
-    throw err;
-  }
+    try {
+        const response = await fetch('common.json');
+        return await response.json();
+    } catch (err) {
+        console.error('Error loading common.json:', err);
+        throw err;
+    }
 }
 
 function decodeBase64ToUnicode(base64) {
@@ -44,8 +47,8 @@ function getAvailableAbilities(chosenClass, myLevel) {
     if (!Array.isArray(chosenClass.Abilities)) return [];
 
     const filteredAbilities = chosenClass.Abilities
-    .filter(ability => ability.Level <= myLevel)
-    .map(ability => 'Level ' + ability.Level + " Ability: " + ability.Name);
+        .filter(ability => ability.Level <= myLevel)
+        .map(ability => 'Level ' + ability.Level + " Ability: " + ability.Name);
 
     let result = "";
     let myString = "";
@@ -85,8 +88,7 @@ function getWeapons(commonData, weaponList) {
     weaponList = ensureUnarmed(weaponList);
 
     weaponList.forEach(element => {
-        let weaponObject = {...commonData.Weapons.find(item => item.id === Number.parseInt(element))};
-        weaponObject.isAvailable = true;
+        let weaponObject = { ...commonData.Weapons.find(item => item.id === Number.parseInt(element)) };
         result.push(weaponObject);
     });
 
@@ -97,6 +99,36 @@ function sameWeaponExists(select, weapon) {
     return Array.from(select.options)
         .some(option => option.value === String(weapon.id));
 }
+
+function syncDisabledOptions(mainSelect, offSelect, weaponList) {
+    const mainId = Number(mainSelect.value);
+    const offId = Number(offSelect.value);
+
+    // reset all options
+    [...mainSelect.options, ...offSelect.options].forEach(
+        opt => (opt.disabled = false)
+    );
+
+    // count weapons by id once
+    const counts = weaponList.reduce((acc, w) => {
+        acc[w.id] = (acc[w.id] || 0) + 1;
+        return acc;
+    }, {});
+
+    // disable main in off-hand if only one exists
+    if (mainId !== 17 && counts[mainId] < 2) {
+        const opt = offSelect.querySelector(`option[value="${mainId}"]`);
+        if (opt) opt.disabled = true;
+    }
+
+    // disable off in main-hand if only one exists
+    if (offId !== 17 && counts[offId] < 2) {
+        const opt = mainSelect.querySelector(`option[value="${offId}"]`);
+        if (opt) opt.disabled = true;
+    }
+}
+
+
 
 function updateEquippedGlobals(weaponList) {
     const mainHandSelectElement = document.getElementById('activeMainHand');
@@ -118,9 +150,25 @@ function updateEquippedGlobals(weaponList) {
     else {
         currentOffHand = weaponList.find(item => item.id === Number.parseInt(offHandSelectElement.value));
     }
-    
-    console.log(currentMainHand);
-    console.log(currentOffHand);
+
+    // disallow wielding the same instance twice
+    const sameInstance = currentMainHand === currentOffHand;
+
+    const count = weaponList.filter(
+        element => element.id === currentMainHand.id
+    ).length;
+
+    if (sameInstance && count < 2) {
+        console.log("Main hand and off hand are equal");
+        offHandSelectElement.value = 17;
+        updateWeaponStats(weaponList);
+    }
+
+    syncDisabledOptions(
+        mainHandSelectElement,
+        offHandSelectElement,
+        weaponList
+    );
 }
 
 function getEquippedGlobalsString() {
@@ -138,22 +186,21 @@ function populateWeaponSelectors(weaponList) {
 
     // add weapon selection options
     weaponList.forEach(weaponObject => {
-        const isAvailableInMainhand = weaponObject.isAvailable && !sameWeaponExists(mainHandSelectElement, weaponObject);
-        const isAvailableInOffhand = weaponObject.isAvailable && !sameWeaponExists(offHandSelectElement, weaponObject);
+        const isAvailableInMainhand = !sameWeaponExists(mainHandSelectElement, weaponObject);
+        const isAvailableInOffhand = !sameWeaponExists(offHandSelectElement, weaponObject);
 
         if (isAvailableInMainhand && (weaponObject.Type === "two_hand" || weaponObject.Type === "one_hand")) {
             const opt = document.createElement('option');
             opt.value = weaponObject.id;
             opt.textContent = weaponObject.Name;
             mainHandSelectElement.appendChild(opt);
-            weaponObject.isAvailable = false;
         }
+
         if (isAvailableInOffhand && (weaponObject.Type === "off_hand" || weaponObject.isLight)) {
             const opt = document.createElement('option');
             opt.value = weaponObject.id;
             opt.textContent = weaponObject.Name;
             offHandSelectElement.appendChild(opt);
-            weaponObject.isAvailable = false;
         }
     });
 
@@ -166,30 +213,62 @@ function formatPrecision(precision) {
     return `d10 - ${Math.abs(precision)}`;
 }
 
+function updateWeaponStats(weaponList) {
+
+    // get new currentMainHand and currentOffHand
+    updateEquippedGlobals(weaponList);
+
+    // calculate precision
+    const precisionBase = Math.floor(myCharacterData.level / 2);
+    let precision = precisionBase + currentMainHand.Precision;
+
+    // Off-hand modifies precision only when the item is an off-hand type (shields, charms, etc.)
+    if (currentOffHand?.Type === 'off_hand') {
+        precision += currentOffHand.Precision;
+    }
+
+    // calculate armor bonuses
+    const newPArmor = basePArmor + currentMainHand.PArmor + (currentOffHand?.PArmor ?? 0);
+    const newMArmor = baseMArmor + currentMainHand.MArmor + (currentOffHand?.MArmor ?? 0);
+
+    document.getElementById('characterPArmor').innerHTML = "<b>Physical Armor:</b> " + newPArmor;
+    document.getElementById('characterMArmor').innerHTML = "<b>Magical Armor:</b> " + newMArmor;
+
+    // calculate resistances
+    const newParry = myResistances.Parry + currentMainHand.Parry + (currentOffHand?.Parry ?? 0);
+    const newWarding = myResistances.Warding + currentMainHand.Warding + (currentOffHand?.Warding ?? 0);
+
+    document.getElementById('characterParry').innerHTML = "<b>Parry:</b> " + newParry;
+    document.getElementById('characterWarding').innerHTML = "<b>Warding:</b> " + newWarding;
+
+    // update display
+    document.getElementById('characterWeapons').innerHTML = getEquippedGlobalsString();
+    document.getElementById('characterPrecision').innerHTML = "<b>Precision Roll:</b> " + formatPrecision(precision);
+}
+
 function prepareResistance(base, name, major, minors) {
-  let bonus = 0;
+    let bonus = 0;
 
-  if (name === major) bonus += 2;
-  bonus += minors.filter(minor => minor === name).length;
+    if (name === major) bonus += 2;
+    bonus += minors.filter(minor => minor === name).length;
 
-  return base + bonus;
+    return base + bonus;
 }
 
 function displayCharacter(characterData, pathData, branchData, commonData) {
-    
+
     // Populate page with characterData
     document.getElementById('page_title').innerHTML = characterData.name + " - Sigil of Uchma Character Creator";
     document.getElementById('characterPlayerName').textContent = characterData.playerName;
     document.getElementById('characterName').textContent = characterData.name;
 
     const myLevel = Number.parseInt(characterData.level);
-    const myBasePrecision = Math.floor(myLevel / 2);
     document.getElementById('characterLevel').textContent = "Level " + myLevel;
 
     // path
     const pathName = characterData.path;
     const chosenPath = pathData[pathName];
-    
+
 
     // branch
     const branchName = characterData.branch;
@@ -199,19 +278,21 @@ function displayCharacter(characterData, pathData, branchData, commonData) {
     document.getElementById('characterPath').textContent = pathName + "/" + branchName;
 
     document.getElementById('characterHealth').innerHTML = "<b>Health:</b> " + chosenPath.Health;
-    
-    const myEnergy = commonData.Constants.energyBase + commonData.Constants.energyScaling * Math.floor(myLevel/2);
+
+    const myEnergy = commonData.Constants.energyBase + commonData.Constants.energyScaling * Math.floor(myLevel / 2);
     document.getElementById('characterEnergy').innerHTML = "<b>Energy:</b> " + myEnergy;
 
     document.getElementById('characterPotency').innerHTML = "<b>Potency:</b> " + characterData.potency;
     document.getElementById('characterControl').innerHTML = "<b>Control:</b> " + characterData.control;
-    
+
     // armor
     const chosenArmor = commonData.Armors.find(item => item.id === Number.parseInt(characterData.armor));
     document.getElementById('characterArmor').innerHTML = "<b>Armor Type:</b> " + chosenArmor.Name;
     document.getElementById('characterSpeed').innerHTML = "<b>Movement:</b> " + chosenArmor.Speed + " meters";
     document.getElementById('characterPArmor').innerHTML = "<b>Physical Armor:</b> " + chosenArmor.PArmor;
     document.getElementById('characterMArmor').innerHTML = "<b>Magical Armor:</b> " + chosenArmor.MArmor;
+    basePArmor = chosenArmor.PArmor;
+    baseMArmor = chosenArmor.MArmor;
 
     // class abilities
     document.getElementById('characterPathAbilities').innerHTML = getAvailableAbilities(chosenPath, myLevel);
@@ -228,10 +309,10 @@ function displayCharacter(characterData, pathData, branchData, commonData) {
     const myMajor = characterData.majorResistance;
     const myMinors = characterData.minorResistances;
 
-    const myResistances = Object.fromEntries(
-      resistanceNames.map(name => [name, prepareResistance(resistanceBase, name, myMajor, myMinors)])
+    myResistances = Object.fromEntries(
+        resistanceNames.map(name => [name, prepareResistance(resistanceBase, name, myMajor, myMinors)])
     );
-    
+
     document.getElementById('characterParry').innerHTML = "<b>Parry:</b> " + myResistances.Parry;
     document.getElementById('characterWarding').innerHTML = "<b>Warding:</b> " + myResistances.Warding;
     document.getElementById('characterConstitution').innerHTML = "<b>Constitution:</b> " + myResistances.Constitution;
@@ -248,7 +329,7 @@ function displayCharacter(characterData, pathData, branchData, commonData) {
     if (characterData.branchPet && characterData.branchPet !== "not_selected") {
         document.getElementById('characterBranchPet').hidden = false;
         document.getElementById('characterPetsHeader').hidden = false;
-        
+
         document.getElementById('characterBranchPet').innerHTML = "<td colspan='4'>" + characterData.branchPet + "</td>";
     }
 
@@ -270,24 +351,13 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
         const finalUrl = `${location.origin}${location.pathname}?q=${qReEncoded}`;
 
         navigator.clipboard.writeText(finalUrl)
-        .then(() => alert("Copied the share link."))
-        .catch(() => alert("Failed to copy the share link."));
+            .then(() => alert("Copied the share link."))
+            .catch(() => alert("Failed to copy the share link."));
     });
 
     if (base64String) {
         try {
             myCharacterData = decodeBase64ToUnicode(base64String);
-            //normalizeWeapons(myCharacterData);
-
-            displayCharacter(myCharacterData, myPaths, myBranches, myCommon);
-
-            // weapons
-            let myWeaponObjects = getWeapons(myCommon, myCharacterData.weapons);
-            populateWeaponSelectors(myWeaponObjects);
-            
-            document.getElementById('characterWeapons').innerHTML = getEquippedGlobalsString();
-            document.getElementById('characterPrecision').innerHTML = "<b>Precision Roll:</b> " + formatPrecision();
-
         } catch (error) {
             console.error('Error decoding character data:', error);
         }
@@ -295,4 +365,24 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
         // Handle case where 'q' parameter is missing
         globalThis.location.href = "index.html";
     }
+
+    displayCharacter(myCharacterData, myPaths, myBranches, myCommon);
+
+    // weapons
+    let myWeaponObjects = getWeapons(myCommon, myCharacterData.weapons);
+    populateWeaponSelectors(myWeaponObjects);
+
+    document.getElementById('characterWeapons').innerHTML = getEquippedGlobalsString();
+    updateWeaponStats(myWeaponObjects);
+
+    const mainHandSelectElement = document.getElementById('activeMainHand');
+
+    mainHandSelectElement.addEventListener('change', () => {
+        updateWeaponStats(myWeaponObjects);
+    });
+
+    const offHandSelectElement = document.getElementById('activeOffHand');
+    offHandSelectElement.addEventListener('change', () => {
+        updateWeaponStats(myWeaponObjects);
+    });
 });
