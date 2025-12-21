@@ -295,23 +295,6 @@ function encodeUnicodeToBase64(obj) {
   return btoa(binary);
 }
 
-function prepareResistance(base, name, major, minors) {
-  let bonus = 0;
-
-  if (name === major) bonus += 2;
-  bonus += minors.filter(minor => minor === name).length;
-
-  return base + bonus;
-}
-
-function getAvailableAbilities(abilities, myLevel) {
-  if (!Array.isArray(abilities)) return [];
-  return abilities
-    .filter(ability => ability.Level <= myLevel)
-    .map(ability => "Level " + ability.Level + " Ability: " + ability.Name);
-}
-
-
 globalThis.addEventListener('DOMContentLoaded', async () => {
   // read and init
   const myPaths = await readPaths();
@@ -358,16 +341,16 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
   const mainWeapon1SelectElement = document.getElementById("main_hand_weapon_1");
   const offWeapon1SelectElement = document.getElementById("off_hand_weapon_1");
 
-  const isMainWeapon1Populated = populateWeapon(mainWeapon1SelectElement, myCommon, true);
-  const isOffWeapon1Populated = populateWeapon(offWeapon1SelectElement, myCommon, false);
+  populateWeapon(mainWeapon1SelectElement, myCommon, true);
+  populateWeapon(offWeapon1SelectElement, myCommon, false);
 
   // populate weapon set 2
 
   const mainWeapon2SelectElement = document.getElementById("main_hand_weapon_2");
   const offWeapon2SelectElement = document.getElementById("off_hand_weapon_2");
 
-  const isMainWeapon2Populated = populateWeapon(mainWeapon2SelectElement, myCommon, true);
-  const isOffWeapon2Populated = populateWeapon(offWeapon2SelectElement, myCommon, false);
+  populateWeapon(mainWeapon2SelectElement, myCommon, true);
+  populateWeapon(offWeapon2SelectElement, myCommon, false);
 
   // resistances
   const resistanceMajorMinorSelectElement = document.getElementById("major_or_3minors_selection");
@@ -516,26 +499,17 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
   document.getElementById("submit_button").addEventListener("click", async () => {
     // get techniques
     
-    // calculate values
-    const myLevel = parseInt(levelSelectElement.value);
-
+    // get values
     const myPath = pathSelectElement.value;
     const myBranch = branchSelectElement.value;
 
-    //// calculate resistance
-    const resistanceBase = 4 + Math.floor((myLevel + 1) / 2);
+    // get resistances
     const myMajor = majorResistanceSelectElement.value;
     const myMinors = [
       minor1ResistanceSelectElement.value,
       minor2ResistanceSelectElement.value,
       minor3ResistanceSelectElement.value,
     ];
-
-    const resistanceNames = ["Parry", "Warding", "Constitution", "Evasion"];
-
-    const myResistances = Object.fromEntries(
-      resistanceNames.map(name => [name, prepareResistance(resistanceBase, name, myMajor, myMinors)])
-    );
 
     // Gather all chosen techniques (ignore “not_selected”)
     const pathTechniqueSelectors = Array.from(
@@ -572,11 +546,6 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
     if (chosenBranchPet && chosenBranchPet !== "not_selected") {
       branchPetString = chosenBranchPet + " pet (" + chosenBranchPetDamageType.toLowerCase() + ")"
     }
-    
-
-    // Get abilities <= to my level
-    // const myPathAbilities = getAvailableAbilities(myPaths[myPath].Abilities, myLevel);
-    // const myBranchAbilities = getAvailableAbilities(myBranches[myBranch].Abilities, myLevel);
 
     // gather selected weapons into an order-agnostic array
     const weaponSelections = [
@@ -586,20 +555,8 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
       offWeapon2SelectElement.value
     ].filter(v => v && v !== "not_selected");
 
-    const weapons = weaponSelections.map((name, index) => ({
-      id: `w${index + 1}`,
-      name
-    }));
-
     // armor
     const myArmor = armorSelectElement.value;
-    // const armorObj = myCommon.Armors.find(w => w.Name === myArmor);
-
-    // const myPArmor = armorObj.PArmor;
-    // const myMArmor = armorObj.MArmor;
-
-    // movement speed comes directly from chosen armor
-    // const myMovementSpeed = armorObj ? armorObj.Speed : 6;
 
     // send character data
     const characterData = {
@@ -610,9 +567,10 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
       level: Number.parseInt(levelSelectElement.value),
       potency: potencySelectElement.value,
       control: controlSelectElement.value,
-      resistances: myResistances,
+      majorResistance: myMajor,
+      minorResistances: myMinors,
       armor: myArmor,
-      weapons,
+      weapons: weaponSelections,
       pathTechniques: myPathTechniques,
       branchTechniques: myBranchTechniques,
       pathPet: pathPetString,

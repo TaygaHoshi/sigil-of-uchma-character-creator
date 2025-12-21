@@ -1,7 +1,8 @@
 {
     "Constants": {
         "energyBase": 10,
-        "energyScaling": 2 
+        "energyScaling": 2,
+        "resistanceBase": 4
     },
     "Armors": [
         {

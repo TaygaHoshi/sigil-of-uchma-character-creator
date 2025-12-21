@@ -41,13 +41,83 @@ function decodeBase64ToUnicode(base64) {
     return JSON.parse(decompressed);
 }
 
+function getAvailableAbilities(chosenClass, myLevel) {
+    if (!Array.isArray(chosenClass.Abilities)) return [];
+
+    const filteredAbilities = chosenClass.Abilities
+    .filter(ability => ability.Level <= myLevel)
+    .map(ability => 'Level ' + ability.Level + " Ability: " + ability.Name);
+
+    let result = "";
+    let myString = "";
+
+    filteredAbilities.forEach(element => {
+        myString = '<tr><td colspan="4">';
+        myString += element;
+        myString += '</td></tr>';
+        result += myString;
+    });
+
+    return result;
+}
+
+function printTechniques(chosenClass, techniqueList) {
+    let result = "";
+    let myString = "";
+
+    techniqueList.forEach(element => {
+        myString = '<tr><td colspan="4">';
+        myString += "Technique: " + chosenClass.Techniques.find(item => item.id === Number.parseInt(element)).Name;
+        myString += '</td></tr>';
+        result += myString;
+    });
+
+    return result;
+}
+
+function getWeapons(commonData, weaponList) {
+    let result = [];
+
+    weaponList.forEach(element => {
+        result.push(commonData.Weapons.find(item => item.id === Number.parseInt(element)));
+    });
+
+    return result;
+}
+
+function printWeapons(mainId, offId) {
+    if (!mainId) return "None";
+
+    const mainLabel = getWeaponNameById(mainId) || "None";
+    const offLabel = offId ? getWeaponNameById(offId) : null;
+
+    return offLabel ? `${mainLabel} | ${offLabel}` : mainLabel;
+}
+
+function formatPrecision(precision) {
+    if (precision === 0) return "d10";
+    if (precision > 0) return `d10 + ${precision}`;
+    return `d10 - ${Math.abs(precision)}`;
+}
+
+function prepareResistance(base, name, major, minors) {
+  let bonus = 0;
+
+  if (name === major) bonus += 2;
+  bonus += minors.filter(minor => minor === name).length;
+
+  return base + bonus;
+}
+
 function displayCharacter(characterData, pathData, branchData, commonData) {
+    
     // Populate page with characterData
     document.getElementById('page_title').innerHTML = characterData.name + " - Sigil of Uchma Character Creator";
     document.getElementById('characterPlayerName').textContent = characterData.playerName;
     document.getElementById('characterName').textContent = characterData.name;
 
     const myLevel = Number.parseInt(characterData.level);
+    const myBasePrecision = Math.floor(myLevel / 2);
     document.getElementById('characterLevel').textContent = "Level " + myLevel;
 
     // path
@@ -74,14 +144,39 @@ function displayCharacter(characterData, pathData, branchData, commonData) {
     const chosenArmor = commonData.Armors.find(item => item.id === Number.parseInt(characterData.armor));
     document.getElementById('characterArmor').innerHTML = "<b>Armor Type:</b> " + chosenArmor.Name;
     document.getElementById('characterSpeed').innerHTML = "<b>Movement:</b> " + chosenArmor.Speed + " meters";
+    document.getElementById('characterPArmor').innerHTML = "<b>Physical Armor:</b> " + chosenArmor.PArmor;
+    document.getElementById('characterMArmor').innerHTML = "<b>Magical Armor:</b> " + chosenArmor.MArmor;
 
-    // abilities
-    document.getElementById('characterPathAbilities').innerHTML = printAbilities(characterData.pathAbilities, false);
-    document.getElementById('characterBranchAbilities').innerHTML = printAbilities(characterData.branchAbilities, false);
+    // weapons
+    const myWeapons = getWeapons(commonData, characterData.weapons);
+    console.log(myWeapons);
+    // const weaponDisplay = printWeapons(currentMainHandId, currentOffHandId);
+    // document.getElementById('characterWeapons').innerHTML = weaponDisplay;
+    // document.getElementById('characterPrecision').innerHTML = "<b>Precision Roll:</b> " + formatPrecision(precision);
 
-    // techniques
-    document.getElementById('characterPathTechniques').innerHTML = printAbilities(characterData.pathTechniques, true);
-    document.getElementById('characterBranchTechniques').innerHTML = printAbilities(characterData.branchTechniques, true);
+    // class abilities
+    document.getElementById('characterPathAbilities').innerHTML = getAvailableAbilities(chosenPath, myLevel);
+    document.getElementById('characterBranchAbilities').innerHTML = getAvailableAbilities(chosenBranch, myLevel);
+
+    // class techniques
+    document.getElementById('characterPathTechniques').innerHTML = printTechniques(chosenPath, characterData.pathTechniques);
+    document.getElementById('characterBranchTechniques').innerHTML = printTechniques(chosenBranch, characterData.branchTechniques);
+
+    // resistances
+    const resistanceNames = ["Parry", "Warding", "Constitution", "Evasion"];
+    const resistanceBase = commonData.Constants.resistanceBase + Math.floor((myLevel + 1) / 2);
+
+    const myMajor = characterData.majorResistance;
+    const myMinors = characterData.minorResistances;
+
+    const myResistances = Object.fromEntries(
+      resistanceNames.map(name => [name, prepareResistance(resistanceBase, name, myMajor, myMinors)])
+    );
+    
+    document.getElementById('characterParry').innerHTML = "<b>Parry:</b> " + myResistances.Parry;
+    document.getElementById('characterWarding').innerHTML = "<b>Warding:</b> " + myResistances.Warding;
+    document.getElementById('characterConstitution').innerHTML = "<b>Constitution:</b> " + myResistances.Constitution;
+    document.getElementById('characterEvasion').innerHTML = "<b>Evasion:</b> " + myResistances.Evasion;
 
     // pet
     if (characterData.pathPet && characterData.pathPet !== "not_selected") {
@@ -97,7 +192,6 @@ function displayCharacter(characterData, pathData, branchData, commonData) {
         
         document.getElementById('characterBranchPet').innerHTML = "<td colspan='4'>" + characterData.branchPet + "</td>";
     }
-    
 
 }
 
