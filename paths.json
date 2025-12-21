@@ -2,16 +2,16 @@
     "Warrior": {
         "Health": 80,
         "Techniques": [
-            "Brutal Attack",
-            "Crushing Charge",
-            "Defensive Strike",
-            "Double Opportunity",
-            "Extend Preparation",
-            "Graze",
-            "Hamstring",
-            "Reaching Attack",
-            "Stability",
-            "Tackle"
+            {"id": 0, "Name":"Brutal Attack"},
+            {"id": 1, "Name":"Crushing Charge"},
+            {"id": 2, "Name":"Defensive Strike"},
+            {"id": 3, "Name":"Double Opportunity"},
+            {"id": 4, "Name":"Extend Preparation"},
+            {"id": 5, "Name":"Graze"},
+            {"id": 6, "Name":"Hamstring"},
+            {"id": 7, "Name":"Reaching Attack"},
+            {"id": 8, "Name":"Stability"},
+            {"id": 9, "Name":"Tackling Charge"}
         ],
         "Abilities": [
             {
@@ -40,16 +40,16 @@
     "Sorcerer": {
         "Health": 60,
         "Techniques": [
-            "Absorption",
-            "Alteration",
-            "Bane",
-            "Call Chaos",
-            "Curse Transfer",
-            "Mark of Sacrifice",
-            "Pain Illusion",
-            "Purge Blessings",
-            "Spread Curses",
-            "Weaken Body"
+            {"id": 0, "Name":"Absorption"},
+            {"id": 1, "Name":"Alteration"},
+            {"id": 2, "Name":"Bane"},
+            {"id": 3, "Name":"Call Chaos"},
+            {"id": 4, "Name":"Curse Transfer"},
+            {"id": 5, "Name":"Mark of Sacrifice"},
+            {"id": 6, "Name":"Pain Illusion"},
+            {"id": 7, "Name":"Purge Blessings"},
+            {"id": 8, "Name":"Spread Curses"},
+            {"id": 9, "Name":"Weaken Body"}
         ],
         "Abilities": [
             {
@@ -74,20 +74,19 @@
             }
         ]
     },
-
     "Guide": {
         "Health": 60,
         "Techniques": [
-            "Astral Travel",
-            "Clairvoyance",
-            "Cleanse",
-            "Divination",
-            "Guest Soul",
-            "Heal Creatures",
-            "Message",
-            "Protect Creature",
-            "Quell Effects",
-            "Transfer Energy"
+            {"id": 0, "Name":"Astral Travel"},
+            {"id": 1, "Name":"Clairvoyance"},
+            {"id": 2, "Name":"Cleanse"},
+            {"id": 3, "Name":"Divination"},
+            {"id": 4, "Name":"Guest Soul"},
+            {"id": 5, "Name":"Heal Creatures"},
+            {"id": 6, "Name":"Message"},
+            {"id": 7, "Name":"Protect Creature"},
+            {"id": 8, "Name":"Quell Effects"},
+            {"id": 9, "Name":"Transfer Energy"}
         ],
         "Abilities": [
             {
@@ -116,13 +115,13 @@
     "Bard": {
         "Health": 70,
         "Techniques": [
-            "Poem of Beauty",
-            "Poem of Brutes",
-            "Poem of Humility",
-            "Poem of Fury",
-            "Poem of Freedom",
-            "Poem of Praise",
-            "Refrain"
+            {"id": 0, "Name":"Poem of Beauty"},
+            {"id": 1, "Name":"Poem of Brutes"},
+            {"id": 2, "Name":"Poem of Humility"},
+            {"id": 3, "Name":"Poem of Fury"},
+            {"id": 4, "Name":"Poem of Freedom"},
+            {"id": 5, "Name":"Poem of Praise"},
+            {"id": 6, "Name":"Refrain"}
         ],
         "Abilities": [
             {

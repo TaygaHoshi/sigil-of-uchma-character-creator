@@ -51,12 +51,12 @@ function populateArmor(selectElement, commonData) {
     return false;
   }
 
-  selectElement.innerHTML = '<option value="not_selected">Not selected</option>';
+  selectElement.innerHTML = '';
 
   commonData["Armors"].forEach(armorObject => {
     const opt = document.createElement('option');
-    opt.value = armorObject["Name"];
-    opt.textContent = armorObject["Name"];
+    opt.value = armorObject.id;
+    opt.textContent = armorObject.Name;
     selectElement.appendChild(opt);
   });
   return true;
@@ -68,26 +68,30 @@ function populateWeapon(selectElement, commonData, isMainHand) {
     return false;
   }
 
-  selectElement.innerHTML = '<option value="not_selected">Not selected</option><hr>';
+  selectElement.innerHTML = '';
 
-  commonData["Weapons"].forEach(weaponObject => {
+  commonData.Weapons.forEach(weaponObject => {
     if (
-      weaponObject["Name"] != "HORIZONTAL_RULE" &&
-      ((isMainHand && weaponObject["Type"] != "off_hand") ||
-        (!isMainHand && weaponObject["Type"] == "off_hand") ||
-        (!isMainHand && weaponObject["isLight"] == true))
+      weaponObject.Name != "HORIZONTAL_RULE" &&
+      ((isMainHand && weaponObject.Type != "off_hand") ||
+        (!isMainHand && weaponObject.Type == "off_hand") ||
+        (!isMainHand && weaponObject.isLight))
     ) {
       const opt = document.createElement('option');
-      opt.value = weaponObject["Name"];
-      opt.textContent = weaponObject["Name"];
+      opt.value = weaponObject.id;
+      opt.textContent = weaponObject.Name;
       selectElement.appendChild(opt);
     }
 
-    if (weaponObject["Name"] == "HORIZONTAL_RULE") {
+    if (weaponObject.Name == "HORIZONTAL_RULE") {
       const hr = document.createElement('hr');
       selectElement.appendChild(hr);
     }
   });
+  
+  // unarmed id is 17
+  selectElement.value = 17; 
+
   return true;
 }
 
@@ -98,9 +102,9 @@ function weaponConstraint(selectElement, offhandElement, commonData) {
     return true;
   }
 
-  const result = commonData["Weapons"].find(item => item.Name === selected);
+  const result = commonData.Weapons.find(item => item.id === Number.parseInt(selected));
 
-  if (result["Type"] == "two_hand") {
+  if (result.Type == "two_hand") {
     // Two-handed selection: hide and clear off-hand so stale values are not submitted
     offhandElement.hidden = true;
     offhandElement.value = "not_selected";
@@ -110,7 +114,6 @@ function weaponConstraint(selectElement, offhandElement, commonData) {
     offhandElement.value = "not_selected";
   }
 
-
 }
 
 function enforceExclusive(container) {
@@ -118,15 +121,15 @@ function enforceExclusive(container) {
     container.querySelectorAll('select[id*="_selection_"]')
   );
   // Gather all chosen techniques (ignore “not_selected”)
-  const chosen = selects
+  const chosen = new Set(selects
     .map(s => s.value)
-    .filter(v => v !== "not_selected");
+    .filter(v => v !== "not_selected"));
 
   selects.forEach(s => {
     Array.from(s.options).forEach(opt => {
       if (opt.value === "not_selected") return;
       // Disable if it’s chosen somewhere else
-      opt.disabled = chosen.includes(opt.value) && s.value !== opt.value;
+      opt.disabled = chosen.has(opt.value) && s.value !== opt.value;
     });
   });
 }
@@ -137,10 +140,10 @@ function populateTechnique(selectedElement, selectedClass, classData) {
 
     select.innerHTML = '<option value="not_selected">Not selected</option>';
 
-    classData[selectedClass]["Techniques"].forEach(techniqueName => {
+    classData[selectedClass]["Techniques"].forEach(techniqueElement => {
       const opt = document.createElement('option');
-      opt.value = techniqueName;
-      opt.textContent = techniqueName;
+      opt.value = techniqueElement.id;
+      opt.textContent = techniqueElement.Name;
       select.appendChild(opt);
     });
 
@@ -288,7 +291,7 @@ function adjustNumericInput(inputEl, delta) {
 function encodeUnicodeToBase64(obj) {
   const json = JSON.stringify(obj);
   const compressed = pako.gzip(json);
-  const binary = String.fromCharCode(...compressed);
+  const binary = String.fromCodePoint(...compressed);
   return btoa(binary);
 }
 
@@ -309,7 +312,7 @@ function getAvailableAbilities(abilities, myLevel) {
 }
 
 
-document.addEventListener('DOMContentLoaded', async () => {
+globalThis.addEventListener('DOMContentLoaded', async () => {
   // read and init
   const myPaths = await readPaths();
   const myBranches = await readBranches();
@@ -519,10 +522,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const myPath = pathSelectElement.value;
     const myBranch = branchSelectElement.value;
 
-    const myHealth = myPaths[myPath].Health;
-
-    const myEnergy = 10 + 2*Math.floor(myLevel/2);
-
     //// calculate resistance
     const resistanceBase = 4 + Math.floor((myLevel + 1) / 2);
     const myMajor = majorResistanceSelectElement.value;
@@ -576,8 +575,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
 
     // Get abilities <= to my level
-    const myPathAbilities = getAvailableAbilities(myPaths[myPath].Abilities, myLevel);
-    const myBranchAbilities = getAvailableAbilities(myBranches[myBranch].Abilities, myLevel);
+    // const myPathAbilities = getAvailableAbilities(myPaths[myPath].Abilities, myLevel);
+    // const myBranchAbilities = getAvailableAbilities(myBranches[myBranch].Abilities, myLevel);
 
     // gather selected weapons into an order-agnostic array
     const weaponSelections = [
@@ -594,47 +593,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // armor
     const myArmor = armorSelectElement.value;
-    const armorObj = myCommon.Armors.find(w => w.Name === myArmor);
+    // const armorObj = myCommon.Armors.find(w => w.Name === myArmor);
 
-    const myPArmor = armorObj.PArmor;
-    const myMArmor = armorObj.MArmor;
+    // const myPArmor = armorObj.PArmor;
+    // const myMArmor = armorObj.MArmor;
 
     // movement speed comes directly from chosen armor
-    const myMovementSpeed = armorObj ? armorObj.Speed : 6;
+    // const myMovementSpeed = armorObj ? armorObj.Speed : 6;
 
     // send character data
     const characterData = {
       name: characterNameSelectElement.value,
       playerName: playerNameSelectElement.value,
-      health: myHealth,
-      energy: myEnergy,
       path: myPath,
       branch: myBranch,
-      level: levelSelectElement.value,
+      level: Number.parseInt(levelSelectElement.value),
       potency: potencySelectElement.value,
       control: controlSelectElement.value,
       resistances: myResistances,
       armor: myArmor,
-      pArmor: myPArmor,
-      mArmor: myMArmor,
-      movementSpeed: myMovementSpeed,
       weapons,
       pathTechniques: myPathTechniques,
       branchTechniques: myBranchTechniques,
-      pathAbilities: myPathAbilities,
-      branchAbilities: myBranchAbilities,
       pathPet: pathPetString,
       branchPet: branchPetString
     };
 
     // Serialize and encode the data
-    const jsonString = JSON.stringify(characterData);
-    const base64String = encodeUnicodeToBase64(jsonString);
+    const base64String = encodeUnicodeToBase64(characterData);
 
     // Construct the shareable URL
     const shareableURL = `output.html?q=${encodeURIComponent(base64String)}`;
 
     // Redirect to the shareable URL
-    window.location.href = shareableURL;
+    globalThis.location.href = shareableURL;
   })
 });
