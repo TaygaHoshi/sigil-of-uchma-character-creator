@@ -111,7 +111,7 @@ function weaponConstraint(selectElement, offhandElement, commonData) {
   } else {
     // One-handed or off-hand weapon: show and reset to not selected
     offhandElement.hidden = false;
-    offhandElement.value = "not_selected";
+    offhandElement.value = 17;
   }
 
 }
