@@ -1,78 +1,210 @@
 // Global state
 let myCharacterData = null;
-let myCommon = null;
-let currentMainHandId = null;
-let currentOffHandId = null;
-let weaponDisplayNames = {};
+let currentMainHand = null;
+let currentOffHand = null;
+let myResistances = null;
+let basePArmor = 0;
+let baseMArmor = 0;
+
+async function readPaths() {
+    try {
+        const response = await fetch('paths.json');
+        return await response.json();
+    } catch (err) {
+        console.error('Error loading paths.json:', err);
+        throw err;
+    }
+}
+
+async function readBranches() {
+    try {
+        const response = await fetch('branches.json');
+        return await response.json();
+    } catch (err) {
+        console.error('Error loading branches.json:', err);
+        throw err;
+    }
+}
 
 async function readCommon() {
-  try {
-    const response = await fetch('common.json');
-    return await response.json();
-  } catch (err) {
-    console.error('Error loading common.json:', err);
-    throw err;
-  }
+    try {
+        const response = await fetch('common.json');
+        return await response.json();
+    } catch (err) {
+        console.error('Error loading common.json:', err);
+        throw err;
+    }
 }
 
 function decodeBase64ToUnicode(base64) {
     const binary = atob(base64);
-    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    const bytes = Uint8Array.from(binary, c => c.codePointAt(0));
     const decompressed = pako.ungzip(bytes, { to: 'string' });
     return JSON.parse(decompressed);
 }
 
-function getWeaponData(weaponName) {
-    if (!weaponName || weaponName === 'not_selected') return null;
-    return myCommon.Weapons.find(w => w.Name === weaponName);
-}
+function getAvailableAbilities(chosenClass, myLevel) {
+    if (!Array.isArray(chosenClass.Abilities)) return [];
 
-function isTwoHanded(weaponName) {
-    const weapon = getWeaponData(weaponName);
-    return weapon && weapon.Type === 'two_hand';
-}
+    const filteredAbilities = chosenClass.Abilities
+        .filter(ability => ability.Level <= myLevel)
+        .map(ability => 'Level ' + ability.Level + " Ability: " + ability.Name);
 
-function getWeaponEntryById(id) {
-    if (!id || !myCharacterData?.weapons) return null;
-    return myCharacterData.weapons.find(w => w.id === id) || null;
-}
+    let result = "";
+    let myString = "";
 
-function getWeaponNameById(id) {
-    return getWeaponEntryById(id)?.name || null;
-}
-
-function getEquipSlots(weaponName) {
-    const weapon = getWeaponData(weaponName);
-    if (!weapon) return { canMain: false, canOff: false };
-
-    if (weapon.Type === 'two_hand') return { canMain: true, canOff: false };
-    if (weapon.Type === 'off_hand') return { canMain: false, canOff: true };
-
-    // one-handed weapons: light can be off-hand, heavy cannot
-    const canOff = !!weapon.isLight;
-    return { canMain: true, canOff };
-}
-
-function buildWeaponDisplayNames(weapons) {
-    const nameCount = {};
-    const labels = {};
-
-    weapons.forEach(w => {
-        nameCount[w.name] = (nameCount[w.name] || 0) + 1;
-        const suffix = nameCount[w.name] > 1 ? `-${nameCount[w.name]}` : '';
-        labels[w.id] = w.name + suffix;
+    filteredAbilities.forEach(element => {
+        myString = '<tr><td colspan="4">';
+        myString += element;
+        myString += '</td></tr>';
+        result += myString;
     });
 
-    return labels;
+    return result;
 }
 
-function printWeapons(mainId, offId) {
-    if (!mainId) return "None";
+function printTechniques(chosenClass, techniqueList) {
+    let result = "";
+    let myString = "";
 
-    const mainLabel = getWeaponNameById(mainId) || "None";
-    const offLabel = offId ? getWeaponNameById(offId) : null;
+    techniqueList.forEach(element => {
+        myString = '<tr><td colspan="4">';
+        myString += "Technique: " + chosenClass.Techniques.find(item => item.id === Number.parseInt(element)).Name;
+        myString += '</td></tr>';
+        result += myString;
+    });
 
-    return offLabel ? `${mainLabel} | ${offLabel}` : mainLabel;
+    return result;
+}
+
+function ensureUnarmed(weaponList) {
+    // 17 is the id of unarmed weapon
+    return [17, 17, ...weaponList.filter(id => id !== 17)];
+}
+
+function getWeapons(commonData, weaponList) {
+    let result = [];
+
+    weaponList = ensureUnarmed(weaponList);
+
+    weaponList.forEach(element => {
+        let weaponObject = { ...commonData.Weapons.find(item => item.id === Number.parseInt(element)) };
+        result.push(weaponObject);
+    });
+
+    return result;
+}
+
+function sameWeaponExists(select, weapon) {
+    return Array.from(select.options)
+        .some(option => option.value === String(weapon.id));
+}
+
+function syncDisabledOptions(mainSelect, offSelect, weaponList) {
+    const mainId = Number(mainSelect.value);
+    const offId = Number(offSelect.value);
+
+    // reset all options
+    [...mainSelect.options, ...offSelect.options].forEach(
+        opt => (opt.disabled = false)
+    );
+
+    // count weapons by id once
+    const counts = weaponList.reduce((acc, w) => {
+        acc[w.id] = (acc[w.id] || 0) + 1;
+        return acc;
+    }, {});
+
+    // disable main in off-hand if only one exists
+    if (mainId !== 17 && counts[mainId] < 2) {
+        const opt = offSelect.querySelector(`option[value="${mainId}"]`);
+        if (opt) opt.disabled = true;
+    }
+
+    // disable off in main-hand if only one exists
+    if (offId !== 17 && counts[offId] < 2) {
+        const opt = mainSelect.querySelector(`option[value="${offId}"]`);
+        if (opt) opt.disabled = true;
+    }
+}
+
+
+
+function updateEquippedGlobals(weaponList) {
+    const mainHandSelectElement = document.getElementById('activeMainHand');
+    const offHandSelectElement = document.getElementById('activeOffHand');
+    const offHandContainer = document.getElementById('activeOffHandContainer');
+
+    currentMainHand = weaponList.find(item => item.id === Number.parseInt(mainHandSelectElement.value));
+
+    if (currentMainHand.Type === "two_hand") {
+        offHandContainer.hidden = true;
+    }
+    else {
+        offHandContainer.hidden = false;
+    }
+
+    if (offHandContainer.hidden) {
+        currentOffHand = null;
+    }
+    else {
+        currentOffHand = weaponList.find(item => item.id === Number.parseInt(offHandSelectElement.value));
+    }
+
+    // disallow wielding the same instance twice
+    const sameInstance = currentMainHand === currentOffHand;
+
+    const count = weaponList.filter(
+        element => element.id === currentMainHand.id
+    ).length;
+
+    if (sameInstance && count < 2) {
+        console.log("Main hand and off hand are equal");
+        offHandSelectElement.value = 17;
+        updateWeaponStats(weaponList);
+    }
+
+    syncDisabledOptions(
+        mainHandSelectElement,
+        offHandSelectElement,
+        weaponList
+    );
+}
+
+function getEquippedGlobalsString() {
+    return currentMainHand.Name + (currentOffHand == null ? "" : " | " + currentOffHand.Name);
+}
+
+function populateWeaponSelectors(weaponList) {
+    const mainHandSelectElement = document.getElementById('activeMainHand');
+    const offHandSelectElement = document.getElementById('activeOffHand');
+    const offHandContainer = document.getElementById('activeOffHandContainer');
+
+    mainHandSelectElement.innerHTML = '';
+    offHandSelectElement.innerHTML = '';
+    offHandContainer.hidden = false;
+
+    // add weapon selection options
+    weaponList.forEach(weaponObject => {
+        const isAvailableInMainhand = !sameWeaponExists(mainHandSelectElement, weaponObject);
+        const isAvailableInOffhand = !sameWeaponExists(offHandSelectElement, weaponObject);
+
+        if (isAvailableInMainhand && (weaponObject.Type === "two_hand" || weaponObject.Type === "one_hand")) {
+            const opt = document.createElement('option');
+            opt.value = weaponObject.id;
+            opt.textContent = weaponObject.Name;
+            mainHandSelectElement.appendChild(opt);
+        }
+
+        if (isAvailableInOffhand && (weaponObject.Type === "off_hand" || weaponObject.isLight)) {
+            const opt = document.createElement('option');
+            opt.value = weaponObject.id;
+            opt.textContent = weaponObject.Name;
+            offHandSelectElement.appendChild(opt);
+        }
+    });
+
+    updateEquippedGlobals(weaponList);
 }
 
 function formatPrecision(precision) {
@@ -81,235 +213,110 @@ function formatPrecision(precision) {
     return `d10 - ${Math.abs(precision)}`;
 }
 
-function normalizeWeapons(characterData) {
-    if (!characterData) return;
+function updateWeaponStats(weaponList) {
 
-    let weaponsArray = [];
-
-    if (Array.isArray(characterData.weapons)) {
-        weaponsArray = characterData.weapons
-            .map((w, index) => {
-                if (typeof w === 'string') {
-                    return { id: `w${index + 1}`, name: w };
-                }
-                return { id: w.id || `w${index + 1}`, name: w.name };
-            })
-            .filter(w => w.name && w.name !== 'not_selected');
-    } else {
-        const legacyWeapons = [
-            characterData.mainWeapon1,
-            characterData.offWeapon1,
-            characterData.mainWeapon2,
-            characterData.offWeapon2
-        ].filter(v => v && v !== 'not_selected');
-
-        weaponsArray = legacyWeapons.map((name, index) => ({
-            id: `w${index + 1}`,
-            name
-        }));
-    }
-
-    characterData.weapons = weaponsArray;
-}
-
-function printAbilities(abilityArray, isTechnique) {
-    let result = "";
-    let myString = "";
-
-    abilityArray.forEach(element => {
-        myString = '<tr><td colspan="4">';
-        myString += isTechnique ? "Technique: " + element : element;
-        myString += '</td></tr>';
-        result += myString;
-    });
-
-    return result;
-}
-
-function updateWeaponStats() {
-    if (!myCharacterData || !myCommon) return;
-
-    const mainWeaponName = getWeaponNameById(currentMainHandId);
-    const offWeaponName = getWeaponNameById(currentOffHandId);
-
-    const mainWeapon = getWeaponData(mainWeaponName);
-    const offWeapon = offWeaponName ? getWeaponData(offWeaponName) : null;
+    // get new currentMainHand and currentOffHand
+    updateEquippedGlobals(weaponList);
 
     // calculate precision
     const precisionBase = Math.floor(myCharacterData.level / 2);
-    let precision = precisionBase + (mainWeapon ? mainWeapon.Precision : 0);
+    let precision = precisionBase + currentMainHand.Precision;
+
     // Off-hand modifies precision only when the item is an off-hand type (shields, charms, etc.)
-    if (offWeapon?.Type === 'off_hand') {
-        precision += offWeapon.Precision;
+    if (currentOffHand?.Type === 'off_hand') {
+        precision += currentOffHand.Precision;
     }
 
     // calculate armor bonuses
-    const baseArmor = myCommon.Armors.find(a => a.Name === myCharacterData.armor);
-    let pArmor = baseArmor ? baseArmor.PArmor : 0;
-    let mArmor = baseArmor ? baseArmor.MArmor : 0;
+    const newPArmor = basePArmor + currentMainHand.PArmor + (currentOffHand?.PArmor ?? 0);
+    const newMArmor = baseMArmor + currentMainHand.MArmor + (currentOffHand?.MArmor ?? 0);
 
-    if (mainWeapon) {
-        pArmor += mainWeapon.PArmor;
-        mArmor += mainWeapon.MArmor;
-    }
-    if (offWeapon) {
-        pArmor += offWeapon.PArmor;
-        mArmor += offWeapon.MArmor;
-    }
+    document.getElementById('characterPArmor').innerHTML = "<b>Physical Armor:</b> " + newPArmor;
+    document.getElementById('characterMArmor').innerHTML = "<b>Magical Armor:</b> " + newMArmor;
 
     // calculate resistances
-    const myResistances = {
-        Parry: myCharacterData.resistances.Parry,
-        Warding: myCharacterData.resistances.Warding,
-        Constitution: myCharacterData.resistances.Constitution,
-        Evasion: myCharacterData.resistances.Evasion
-    };
+    const newParry = myResistances.Parry + currentMainHand.Parry + (currentOffHand?.Parry ?? 0);
+    const newWarding = myResistances.Warding + currentMainHand.Warding + (currentOffHand?.Warding ?? 0);
 
-    if (mainWeapon) {
-        if (mainWeapon.Parry) myResistances.Parry += mainWeapon.Parry;
-        if (mainWeapon.Warding) myResistances.Warding += mainWeapon.Warding;
-    }
-    if (offWeapon) {
-        if (offWeapon.Parry) myResistances.Parry += offWeapon.Parry;
-        if (offWeapon.Warding) myResistances.Warding += offWeapon.Warding;
-    }
+    document.getElementById('characterParry').innerHTML = "<b>Parry:</b> " + newParry;
+    document.getElementById('characterWarding').innerHTML = "<b>Warding:</b> " + newWarding;
 
     // update display
-    const weaponDisplay = printWeapons(currentMainHandId, currentOffHandId);
-    
-    document.getElementById('characterWeapons').innerHTML = weaponDisplay;
+    document.getElementById('characterWeapons').innerHTML = getEquippedGlobalsString();
     document.getElementById('characterPrecision').innerHTML = "<b>Precision Roll:</b> " + formatPrecision(precision);
-    
-    document.getElementById('characterPArmor').innerHTML = "<b>Physical Armor:</b> " + pArmor;
-    document.getElementById('characterMArmor').innerHTML = "<b>Magical Armor:</b> " + mArmor;
-    
-    document.getElementById('characterParry').innerHTML = "<b>Parry:</b> " + myResistances.Parry;
-    document.getElementById('characterWarding').innerHTML = "<b>Warding:</b> " + myResistances.Warding;
-    document.getElementById('characterConstitution').innerHTML = "<b>Constitution:</b> " + myResistances.Constitution;
-    document.getElementById('characterEvasion').innerHTML = "<b>Evasion:</b> " + myResistances.Evasion;
 }
 
-function populateWeaponSelectors() {
-    const mainHandSelectElement = document.getElementById('activeMainHand');
-    const offHandSelectElement = document.getElementById('activeOffHand');
-    const offHandContainer = document.getElementById('activeOffHandContainer');
+function prepareResistance(base, name, major, minors) {
+    let bonus = 0;
 
-    if (!myCharacterData?.weapons || myCharacterData.weapons.length === 0) {
-        mainHandSelectElement.innerHTML = '<option value="">No weapons selected</option>';
-        offHandSelectElement.innerHTML = '<option value="">None</option>';
-        offHandContainer.hidden = true;
-        currentMainHandId = null;
-        currentOffHandId = null;
-        updateWeaponStats();
-        return;
-    }
+    if (name === major) bonus += 2;
+    bonus += minors.filter(minor => minor === name).length;
 
-    weaponDisplayNames = buildWeaponDisplayNames(myCharacterData.weapons);
-
-    const mainOptions = myCharacterData.weapons.filter(w => getEquipSlots(w.name).canMain);
-
-    if (mainOptions.length === 0) {
-        mainHandSelectElement.innerHTML = '<option value="">No main-hand options</option>';
-        offHandSelectElement.innerHTML = '<option value="">None</option>';
-        offHandContainer.hidden = true;
-        currentMainHandId = null;
-        currentOffHandId = null;
-        updateWeaponStats();
-        return;
-    }
-
-    mainHandSelectElement.innerHTML = '';
-
-    mainOptions.forEach(w => {
-        const opt = document.createElement('option');
-        opt.value = w.id;
-        opt.textContent = weaponDisplayNames[w.id] || w.name;
-        mainHandSelectElement.appendChild(opt);
-    });
-
-    const fallbackMainId = mainOptions[0]?.id || '';
-    const selectedMainId = mainOptions.some(w => w.id === currentMainHandId) ? currentMainHandId : fallbackMainId;
-    currentMainHandId = selectedMainId || null;
-    mainHandSelectElement.value = selectedMainId;
-
-    mainHandSelectElement.onchange = () => {
-        currentMainHandId = mainHandSelectElement.value || null;
-        updateOffHandOptions();
-    };
-
-    offHandSelectElement.onchange = () => {
-        currentOffHandId = offHandSelectElement.value || null;
-        updateWeaponStats();
-    };
-
-    updateOffHandOptions();
+    return base + bonus;
 }
 
-function updateOffHandOptions() {
-    const mainHandSelectElement = document.getElementById('activeMainHand');
-    const offHandSelectElement = document.getElementById('activeOffHand');
-    const offHandContainer = document.getElementById('activeOffHandContainer');
+function displayCharacter(characterData, pathData, branchData, commonData) {
 
-    currentMainHandId = mainHandSelectElement.value || null;
-
-    const mainWeaponName = getWeaponNameById(currentMainHandId);
-
-    if (!mainWeaponName || isTwoHanded(mainWeaponName)) {
-        offHandContainer.hidden = true;
-        currentOffHandId = null;
-        offHandSelectElement.innerHTML = '<option value="">None</option>';
-        updateWeaponStats();
-        return;
-    }
-
-    const offOptions = myCharacterData.weapons.filter(w => w.id !== currentMainHandId && getEquipSlots(w.name).canOff);
-
-    offHandContainer.hidden = false;
-    offHandSelectElement.innerHTML = '<option value="">None</option>';
-
-    offOptions.forEach(w => {
-        const opt = document.createElement('option');
-        opt.value = w.id;
-        opt.textContent = weaponDisplayNames[w.id] || w.name;
-        offHandSelectElement.appendChild(opt);
-    });
-
-    const fallbackOffId = offOptions[0]?.id || '';
-    const selectedOffId = offOptions.some(w => w.id === currentOffHandId) ? currentOffHandId : fallbackOffId;
-    currentOffHandId = selectedOffId || null;
-    offHandSelectElement.value = selectedOffId;
-
-    updateWeaponStats();
-}
-
-function displayCharacter(characterData) {
     // Populate page with characterData
     document.getElementById('page_title').innerHTML = characterData.name + " - Sigil of Uchma Character Creator";
     document.getElementById('characterPlayerName').textContent = characterData.playerName;
+    document.getElementById('characterName').textContent = characterData.name;
+
+    const myLevel = Number.parseInt(characterData.level);
+    document.getElementById('characterLevel').textContent = "Level " + myLevel;
+
+    // path
+    const pathName = characterData.path;
+    const chosenPath = pathData[pathName];
+
+
+    // branch
+    const branchName = characterData.branch;
+    const chosenBranch = branchData[branchName];
 
     // base stuff
-    document.getElementById('characterName').textContent = characterData.name;
-    document.getElementById('characterLevel').textContent = "Level " + characterData.level;
-    document.getElementById('characterPath').textContent = characterData.path + "/" + characterData.branch;
+    document.getElementById('characterPath').textContent = pathName + "/" + branchName;
 
-    document.getElementById('characterHealth').innerHTML = "<b>Health:</b> " + characterData.health;
-    document.getElementById('characterEnergy').innerHTML = "<b>Energy:</b> " + characterData.energy;
+    document.getElementById('characterHealth').innerHTML = "<b>Health:</b> " + chosenPath.Health;
+
+    const myEnergy = commonData.Constants.energyBase + commonData.Constants.energyScaling * Math.floor(myLevel / 2);
+    document.getElementById('characterEnergy').innerHTML = "<b>Energy:</b> " + myEnergy;
 
     document.getElementById('characterPotency').innerHTML = "<b>Potency:</b> " + characterData.potency;
     document.getElementById('characterControl').innerHTML = "<b>Control:</b> " + characterData.control;
 
-    document.getElementById('characterSpeed').innerHTML = "<b>Movement:</b> " + characterData.movementSpeed + " meters";
-    
     // armor
-    document.getElementById('characterArmor').innerHTML = "<b>Armor Type:</b> " + characterData.armor;
+    const chosenArmor = commonData.Armors.find(item => item.id === Number.parseInt(characterData.armor));
+    document.getElementById('characterArmor').innerHTML = "<b>Armor Type:</b> " + chosenArmor.Name;
+    document.getElementById('characterSpeed').innerHTML = "<b>Movement:</b> " + chosenArmor.Speed + " meters";
+    document.getElementById('characterPArmor').innerHTML = "<b>Physical Armor:</b> " + chosenArmor.PArmor;
+    document.getElementById('characterMArmor').innerHTML = "<b>Magical Armor:</b> " + chosenArmor.MArmor;
+    basePArmor = chosenArmor.PArmor;
+    baseMArmor = chosenArmor.MArmor;
 
-    // abilities
-    document.getElementById('characterPathAbilities').innerHTML = printAbilities(characterData.pathAbilities, false);
-    document.getElementById('characterBranchAbilities').innerHTML = printAbilities(characterData.branchAbilities, false);
+    // class abilities
+    document.getElementById('characterPathAbilities').innerHTML = getAvailableAbilities(chosenPath, myLevel);
+    document.getElementById('characterBranchAbilities').innerHTML = getAvailableAbilities(chosenBranch, myLevel);
 
-    // techniques
-    document.getElementById('characterPathTechniques').innerHTML = printAbilities(characterData.pathTechniques, true);
-    document.getElementById('characterBranchTechniques').innerHTML = printAbilities(characterData.branchTechniques, true);
+    // class techniques
+    document.getElementById('characterPathTechniques').innerHTML = printTechniques(chosenPath, characterData.pathTechniques);
+    document.getElementById('characterBranchTechniques').innerHTML = printTechniques(chosenBranch, characterData.branchTechniques);
+
+    // resistances
+    const resistanceNames = ["Parry", "Warding", "Constitution", "Evasion"];
+    const resistanceBase = commonData.Constants.resistanceBase + Math.floor((myLevel + 1) / 2);
+
+    const myMajor = characterData.majorResistance;
+    const myMinors = characterData.minorResistances;
+
+    myResistances = Object.fromEntries(
+        resistanceNames.map(name => [name, prepareResistance(resistanceBase, name, myMajor, myMinors)])
+    );
+
+    document.getElementById('characterParry').innerHTML = "<b>Parry:</b> " + myResistances.Parry;
+    document.getElementById('characterWarding').innerHTML = "<b>Warding:</b> " + myResistances.Warding;
+    document.getElementById('characterConstitution').innerHTML = "<b>Constitution:</b> " + myResistances.Constitution;
+    document.getElementById('characterEvasion').innerHTML = "<b>Evasion:</b> " + myResistances.Evasion;
 
     // pet
     if (characterData.pathPet && characterData.pathPet !== "not_selected") {
@@ -322,47 +329,60 @@ function displayCharacter(characterData) {
     if (characterData.branchPet && characterData.branchPet !== "not_selected") {
         document.getElementById('characterBranchPet').hidden = false;
         document.getElementById('characterPetsHeader').hidden = false;
-        
+
         document.getElementById('characterBranchPet').innerHTML = "<td colspan='4'>" + characterData.branchPet + "</td>";
     }
-    
 
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
-    const params = new URLSearchParams(window.location.search);
+globalThis.addEventListener('DOMContentLoaded', async () => {
+    const params = new URLSearchParams(globalThis.location.search);
     const base64String = params.get('q');
 
-    // read common data
-    myCommon = await readCommon();
+    // read data
+    const myPaths = await readPaths();
+    const myBranches = await readBranches();
+    const myCommon = await readCommon();
+
 
     document.getElementById("copyButton").addEventListener("click", () => {
-        const qRaw = new URLSearchParams(window.location.search).get('q');
+        const qRaw = new URLSearchParams(globalThis.location.search).get('q');
         const qReEncoded = encodeURIComponent(qRaw);
         const finalUrl = `${location.origin}${location.pathname}?q=${qReEncoded}`;
 
-        console.log(finalUrl);
-
         navigator.clipboard.writeText(finalUrl)
-        .then(() => alert("Copied the share link."))
-        .catch(() => alert("Failed to copy the share link."));
+            .then(() => alert("Copied the share link."))
+            .catch(() => alert("Failed to copy the share link."));
     });
 
     if (base64String) {
         try {
-            const jsonString = decodeBase64ToUnicode(base64String);
-            myCharacterData = JSON.parse(jsonString);
-            normalizeWeapons(myCharacterData);
-
-            displayCharacter(myCharacterData);
-            populateWeaponSelectors();
-
+            myCharacterData = decodeBase64ToUnicode(base64String);
         } catch (error) {
             console.error('Error decoding character data:', error);
-            // Handle error (e.g., display a message to the user)
         }
     } else {
         // Handle case where 'q' parameter is missing
-        window.location.href = "index.html";
+        globalThis.location.href = "index.html";
     }
+
+    displayCharacter(myCharacterData, myPaths, myBranches, myCommon);
+
+    // weapons
+    let myWeaponObjects = getWeapons(myCommon, myCharacterData.weapons);
+    populateWeaponSelectors(myWeaponObjects);
+
+    document.getElementById('characterWeapons').innerHTML = getEquippedGlobalsString();
+    updateWeaponStats(myWeaponObjects);
+
+    const mainHandSelectElement = document.getElementById('activeMainHand');
+
+    mainHandSelectElement.addEventListener('change', () => {
+        updateWeaponStats(myWeaponObjects);
+    });
+
+    const offHandSelectElement = document.getElementById('activeOffHand');
+    offHandSelectElement.addEventListener('change', () => {
+        updateWeaponStats(myWeaponObjects);
+    });
 });

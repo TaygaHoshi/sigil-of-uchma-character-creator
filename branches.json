@@ -1,16 +1,16 @@
 {
     "Wildbond": {
         "Techniques": [
-            "Commune",
-            "Distract",
-            "Find",
-            "Go For Eyes",
-            "Grab and Drag",
-            "Lick Wounds",
-            "Pounce",
-            "Rush",
-            "Savagery",
-            "Sweeping Attack"
+            {"id": 0, "Name":"Commune"},
+            {"id": 1, "Name":"Distract"},
+            {"id": 2, "Name":"Find"},
+            {"id": 3, "Name":"Go For Eyes"},
+            {"id": 4, "Name":"Grab and Drag"},
+            {"id": 5, "Name":"Lick Wounds"},
+            {"id": 6, "Name":"Pounce"},
+            {"id": 7, "Name":"Rush"},
+            {"id": 8, "Name":"Savagery"},
+            {"id": 9, "Name":"Sweeping Attack"}
         ],
         "Abilities": [
             {
@@ -20,6 +20,7 @@
         ],
         "Pets": [
             {
+                
                 "Name": "Striker",
                 "DamageTypeArmorIgnoring": false
             },
@@ -39,15 +40,15 @@
     },
     "Warwise": {
         "Techniques": [
-            "Adapt to Elevation",
-            "Adapt to Formation",
-            "Adapt to Terrain",
-            "Focused Defense",
-            "Disarm",
-            "Expose Weakness",
-            "Improved Maneuvering",
-            "Insight",
-            "Rally"
+            {"id": 0, "Name":"Adapt to Elevation"},
+            {"id": 1, "Name":"Adapt to Formation"},
+            {"id": 2, "Name":"Adapt to Terrain"},
+            {"id": 3, "Name":"Focused Defense"},
+            {"id": 4, "Name":"Disarm"},
+            {"id": 5, "Name":"Expose Weakness"},
+            {"id": 6, "Name":"Improved Maneuvering"},
+            {"id": 7, "Name":"Insight"},
+            {"id": 8, "Name":"Rally"}
         ],
         "Abilities": [
             {
@@ -62,15 +63,15 @@
     },
     "Iconcraft": {
         "Techniques": [
-            "Affect Self",
-            "Extend Ritual",
-            "Manifest",
-            "Ritual of Empowering",
-            "Ritual of Repulsion",
-            "Ritual of Shrouding",
-            "Ritual of Silence",
-            "Ritual of Stagnation",
-            "Ritual of Unbreaking"
+            {"id": 0, "Name":"Affect Self"},
+            {"id": 1, "Name":"Extend Ritual"},
+            {"id": 2, "Name":"Manifest"},
+            {"id": 3, "Name":"Ritual of Empowering"},
+            {"id": 4, "Name":"Ritual of Repulsion"},
+            {"id": 5, "Name":"Ritual of Shrouding"},
+            {"id": 6, "Name":"Ritual of Silence"},
+            {"id": 7, "Name":"Ritual of Stagnation"},
+            {"id": 8, "Name":"Ritual of Unbreaking"}
         ],
         "Abilities": [
             {
@@ -89,16 +90,16 @@
     },
     "Druid": {
         "Techniques": [
-            "Cycle of Cultivation",
-            "Elemental Armor",
-            "Elemental Ground",
-            "Elemental Storm",
-            "Elemental Weapon",
-            "Flaming Trail",
-            "Ice Shards",
-            "Landshape",
-            "Metalskin",
-            "Sprout"
+            {"id": 0, "Name":"Cycle of Cultivation"},
+            {"id": 1, "Name":"Elemental Armor"},
+            {"id": 2, "Name":"Elemental Ground"},
+            {"id": 3, "Name":"Elemental Storm"},
+            {"id": 4, "Name":"Elemental Weapon"},
+            {"id": 5, "Name":"Flaming Trail"},
+            {"id": 6, "Name":"Ice Shards"},
+            {"id": 7, "Name":"Landshape"},
+            {"id": 8, "Name":"Metalskin"},
+            {"id": 9, "Name":"Sprout"}
         ],
         "Abilities": [
             {

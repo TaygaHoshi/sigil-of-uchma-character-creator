@@ -1,6 +1,12 @@
 {
+    "Constants": {
+        "energyBase": 10,
+        "energyScaling": 2,
+        "resistanceBase": 4
+    },
     "Armors": [
         {
+            "id": 0,
             "Name": "Unarmored",
             "PArmor": 0,
             "MArmor": 0,
@@ -8,6 +14,7 @@
             "Stealth": 0
         },
         {
+            "id": 1,
             "Name": "Robes",
             "PArmor": 0,
             "MArmor": 5,
@@ -15,6 +22,7 @@
             "Stealth": 0
         },
         {
+            "id": 2,
             "Name": "Light",
             "PArmor": 5,
             "MArmor": 0,
@@ -22,6 +30,7 @@
             "Stealth": 0
         },
         {
+            "id": 3,
             "Name": "Adventurer",
             "PArmor": 5,
             "MArmor": 5,
@@ -29,6 +38,7 @@
             "Stealth": -1
         },
         {
+            "id": 4,
             "Name": "Heavy",
             "PArmor": 10,
             "MArmor": 0,
@@ -36,6 +46,7 @@
             "Stealth": -2
         },
         {
+            "id": 5,
             "Name": "Warded",
             "PArmor": 0,
             "MArmor": 10,
@@ -45,6 +56,7 @@
     ],
     "Weapons": [
         {
+            "id": 0,
             "Name": "Glaive",
             "Type": "two_hand",
             "Precision": 0,
@@ -56,6 +68,7 @@
             "Stealth": -1
         },
         {
+            "id": 1,
             "Name": "Spear",
             "Type": "two_hand",
             "Precision": 1,
@@ -67,6 +80,7 @@
             "Stealth": -1
         },
         {
+            "id": 2,
             "Name": "Two-handed sword",
             "Type": "two_hand",
             "Precision": 1,
@@ -78,6 +92,7 @@
             "Stealth": 0
         },
         {
+            "id": 3,
             "Name": "War hammer",
             "Type": "two_hand",
             "Precision": 0,
@@ -89,6 +104,7 @@
             "Stealth": 0
         },
         {
+            "id": 4,
             "Name": "Staff",
             "Type": "two_hand",
             "Precision": 1,
@@ -100,6 +116,7 @@
             "Stealth": 0
         },
         {
+            "id": 5,
             "Name": "Crossbow",
             "Type": "two_hand",
             "Precision": 1,
@@ -111,6 +128,7 @@
             "Stealth": 0
         },
         {
+            "id": 6,
             "Name": "Longbow",
             "Type": "two_hand",
             "Precision": 0,
@@ -122,6 +140,7 @@
             "Stealth": -1
         },
         {
+            "id": 7,
             "Name": "Shortbow",
             "Type": "two_hand",
             "Precision": 1,
@@ -133,6 +152,7 @@
             "Stealth": 0
         },
         {
+            "id": 8,
             "Name": "War drums",
             "Type": "two_hand",
             "Precision": 0,
@@ -144,6 +164,7 @@
             "Stealth": -2
         },
         {
+            "id": 9,
             "Name": "HORIZONTAL_RULE",
             "Type": "two_hand",
             "Precision": 0,
@@ -155,6 +176,7 @@
             "Stealth": 0
         },
         {
+            "id": 10,
             "Name": "Hatchet",
             "Type": "one_hand",
             "Precision": 0,
@@ -166,6 +188,7 @@
             "Stealth": 0
         },
         {
+            "id": 11,
             "Name": "Curved Sword",
             "Type": "one_hand",
             "Precision": 1,
@@ -177,6 +200,7 @@
             "Stealth": 0
         },
         {
+            "id": 12,
             "Name": "Throwing Spear",
             "Type": "one_hand",
             "Precision": 0,
@@ -188,6 +212,7 @@
             "Stealth": -1
         },
         {
+            "id": 13,
             "Name": "Scepter",
             "Type": "one_hand",
             "Precision": 0,
@@ -199,6 +224,7 @@
             "Stealth": 0
         },
         {
+            "id": 14,
             "Name": "Wand",
             "Type": "one_hand",
             "Precision": 0,
@@ -210,6 +236,7 @@
             "Stealth": 0
         },
         {
+            "id": 15,
             "Name": "Shortsword",
             "Type": "one_hand",
             "Precision": 1,
@@ -221,6 +248,7 @@
             "Stealth": 0
         },
         {
+            "id": 16,
             "Name": "Dagger",
             "Type": "one_hand",
             "Precision": 1,
@@ -232,6 +260,7 @@
             "Stealth": 0
         },
         {
+            "id": 17,
             "Name": "Unarmed",
             "Type": "one_hand",
             "Precision": 1,
@@ -243,6 +272,7 @@
             "Stealth": 0
         },
         {
+            "id": 18,
             "Name": "HORIZONTAL_RULE",
             "Type": "two_hand",
             "Precision": 0,
@@ -254,6 +284,7 @@
             "Stealth": 0
         },
         {
+            "id": 19,
             "Name": "Shield",
             "Type": "off_hand",
             "Precision": -1,
@@ -265,6 +296,7 @@
             "Stealth": -1
         },
         {
+            "id": 20,
             "Name": "Focus",
             "Type": "off_hand",
             "Precision": -1,
@@ -276,6 +308,7 @@
             "Stealth": -1
         },
         {
+            "id": 21,
             "Name": "Charm",
             "Type": "off_hand",
             "Precision": 1,
@@ -287,6 +320,7 @@
             "Stealth": 0
         },
         {
+            "id": 22,
             "Name": "Warhorn",
             "Type": "off_hand",
             "Precision": 0,
