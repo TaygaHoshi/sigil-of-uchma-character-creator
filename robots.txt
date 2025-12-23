@@ -1,4 +1,5 @@
 User-agent: *
 Disallow: /output
+Disallow: /output.html
 Disallow: /*.json
 Disallow: /*.js
