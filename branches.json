@@ -63,9 +63,9 @@
     },
     "Iconcraft": {
         "Techniques": [
-            {"id": 0, "Name":"Affect Self"},
-            {"id": 1, "Name":"Extend Ritual"},
-            {"id": 2, "Name":"Manifest"},
+            {"id": 0, "Name":"Affect Self", "Starter":false},
+            {"id": 1, "Name":"Extend Ritual", "Starter":false},
+            {"id": 2, "Name":"Manifest", "Starter":false},
             {"id": 3, "Name":"Ritual of Empowering"},
             {"id": 4, "Name":"Ritual of Repulsion"},
             {"id": 5, "Name":"Ritual of Shrouding"},

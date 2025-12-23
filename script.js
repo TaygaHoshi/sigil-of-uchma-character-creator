@@ -140,11 +140,19 @@ function populateTechnique(selectedElement, selectedClass, classData) {
 
     select.innerHTML = '<option value="not_selected">Not selected</option>';
 
+    const isStarterSlot = select.id.endsWith('_technique_selection_1');
+    console.log(isStarterSlot);
+
     classData[selectedClass]["Techniques"].forEach(techniqueElement => {
-      const opt = document.createElement('option');
-      opt.value = techniqueElement.id;
-      opt.textContent = techniqueElement.Name;
-      select.appendChild(opt);
+      if (!isStarterSlot || techniqueElement?.Starter !== false) {
+        const opt = document.createElement('option');
+        opt.value = techniqueElement.id;
+        opt.textContent = techniqueElement.Name;
+        select.appendChild(opt);
+      }
+      else {
+        console.log("Skipping technique:", techniqueElement.Name);
+      }
     });
 
     select.disabled = false;
@@ -176,7 +184,7 @@ function setTechniqueCount(container, newCount, isPath) {
     sel.hidden = wasHidden;
     sel.classList.add('form-control', 'mb-2');
 
-    optionClones.forEach(opt => sel.appendChild(opt.cloneNode(true)));
+    //optionClones.forEach(opt => sel.appendChild(opt.cloneNode(true)));
     container.appendChild(sel);
   }
 }
@@ -188,7 +196,7 @@ function populatePets(divElement, selectedClass, classData) {
   petSelectElement.innerHTML = '';
 
   // check if the chosen class has pets
-  if (classData[selectedClass] && classData[selectedClass]["Pets"]) {
+  if (classData[selectedClass]?.["Pets"]) {
 
     const defaultOpt = document.createElement('option');
     defaultOpt.value = 'not_selected';
@@ -330,12 +338,12 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
   const branchPetDamageTypeDivElement = document.getElementById("branch_pet_damage_type_selection_main");
 
   // populate paths and branches
-  const isPathPopulated = populateClass(pathSelectElement, myPaths);
-  const isBranchPopulated = populateClass(branchSelectElement, myBranches);
+  populateClass(pathSelectElement, myPaths);
+  populateClass(branchSelectElement, myBranches);
 
   // populate armors
   const armorSelectElement = document.getElementById("armor_selection");
-  const isArmorPopulated = populateArmor(armorSelectElement, myCommon);
+  populateArmor(armorSelectElement, myCommon);
 
   // populate weapon set 1
   const mainWeapon1SelectElement = document.getElementById("main_hand_weapon_1");
@@ -365,14 +373,14 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
   // when level is changed
   levelSelectElement.addEventListener('change', () => {
 
-    if (parseInt(levelSelectElement.value) > 10) {
+    if (Number.parseInt(levelSelectElement.value) > 10) {
       levelSelectElement.value = 10;
     }
-    if (parseInt(levelSelectElement.value) < 1) {
+    if (Number.parseInt(levelSelectElement.value) < 1) {
       levelSelectElement.value = 1;
     }
 
-    const currentLevel = parseInt(levelSelectElement.value);
+    const currentLevel = Number.parseInt(levelSelectElement.value);
 
     // change amount of path and branch techniques
     setTechniqueCount(pathTechniqueSelectElement, currentLevel / 2 + 1, true);
@@ -384,6 +392,15 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
     // refresh techniques
     enforceExclusive(pathTechniqueSelectElement);
     enforceExclusive(branchTechniqueSelectElement);
+
+    if (pathSelectElement.value !== "not_selected") {
+      populateTechnique(pathTechniqueSelectElement, pathSelectElement.value, myPaths);
+    }
+    if (branchSelectElement.value !== "not_selected") {
+      populateTechnique(branchTechniqueSelectElement, branchSelectElement.value, myBranches);
+    }
+
+    
   });
 
   potencySelectElement.addEventListener('change', () => aptitudeConstraint(levelSelectElement, potencySelectElement, controlSelectElement, aptitudeDisplay));
