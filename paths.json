@@ -115,13 +115,13 @@
     "Bard": {
         "Health": 70,
         "Techniques": [
-            {"id": 0, "Name":"Poem of Beauty"},
-            {"id": 1, "Name":"Poem of Brutes"},
-            {"id": 2, "Name":"Poem of Humility"},
+            {"id": 0, "Name":"Song of Beauty"},
+            {"id": 1, "Name":"Song of Marching"},
             {"id": 3, "Name":"Poem of Fury"},
             {"id": 4, "Name":"Poem of Freedom"},
-            {"id": 5, "Name":"Poem of Praise"},
-            {"id": 6, "Name":"Refrain"}
+            {"id": 2, "Name":"Poem of Heroism"},
+            {"id": 5, "Name":"Poem of Love"},
+            {"id": 6, "Name":"Poem of Mockery"}
         ],
         "Abilities": [
             {
@@ -134,11 +134,15 @@
             },
             {
                 "Level": 3,
-                "Name": "In Rhythm"
+                "Name": "In Rhythm" 
             },
             {
                 "Level": 5,
                 "Name": "Resonance"
+            },
+            {
+                "Level": 5,
+                "Name": "Insert Lyrics"
             },
             {
                 "Level": 7,
