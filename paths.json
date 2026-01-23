@@ -117,10 +117,13 @@
         "Techniques": [
             {"id": 0, "Name":"Song of Beauty"},
             {"id": 1, "Name":"Song of Marching"},
+            {"id": 7, "Name":"Song of the Challenge"},
+            {"id": 8, "Name":"Poem of Dissonance"},
             {"id": 3, "Name":"Poem of Fury"},
             {"id": 4, "Name":"Poem of Freedom"},
             {"id": 2, "Name":"Poem of Heroism"},
             {"id": 5, "Name":"Poem of Love"},
+            {"id": 9, "Name":"Poem of Melancholy"},
             {"id": 6, "Name":"Poem of Mockery"}
         ],
         "Abilities": [
@@ -133,16 +136,16 @@
                 "Name": "Magical Poetry"
             },
             {
+                "Level": 1,
+                "Name": "Insert Lyrics"
+            },
+            {
                 "Level": 3,
                 "Name": "In Rhythm" 
             },
             {
                 "Level": 5,
                 "Name": "Resonance"
-            },
-            {
-                "Level": 5,
-                "Name": "Insert Lyrics"
             },
             {
                 "Level": 7,
