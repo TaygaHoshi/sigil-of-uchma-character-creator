@@ -285,6 +285,13 @@ function displayCharacter(characterData, pathData, branchData, commonData) {
     document.getElementById('characterPotency').innerHTML = "<b>Potency:</b> " + characterData.potency;
     document.getElementById('characterControl').innerHTML = "<b>Control:</b> " + characterData.control;
 
+    const mySkills = (characterData.skills || [])
+        .map(id => commonData.Skills.find(item => item.id === Number.parseInt(id))?.Name)
+        .filter(Boolean);
+
+    const mySkillString = mySkills.length > 0 ? mySkills.join(" and ") : "Not selected";
+    document.getElementById('characterSkills').innerHTML = "<b>Major Skills:</b> " + mySkillString;
+
     // armor
     const chosenArmor = commonData.Armors.find(item => item.id === Number.parseInt(characterData.armor));
     document.getElementById('characterArmor').innerHTML = "<b>Armor Type:</b> " + chosenArmor.Name;

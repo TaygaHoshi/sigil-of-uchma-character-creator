@@ -4,6 +4,64 @@
         "energyScaling": 2,
         "resistanceBase": 4
     },
+    "Skills": [
+        {
+            "id": 0,
+            "Name": "Athletics"
+        },
+        {
+            "id": 1,
+            "Name": "Reflexes"
+        },
+        {
+            "id": 2,
+            "Name": "Stealth"
+        },
+        {
+            "id": 3,
+            "Name": "Riding"
+        },
+        {
+            "id": 4,
+            "Name": "Lorekeeping"
+        },
+        {
+            "id": 5,
+            "Name": "Magic Sense"
+        },
+        {
+            "id": 6,
+            "Name": "Runecarving"
+        },
+        {
+            "id": 7,
+            "Name": "Apothecary"
+        },
+        {
+            "id": 8,
+            "Name": "Husbandry"
+        },
+        {
+            "id": 9,
+            "Name": "Healing"
+        },
+        {
+            "id": 10,
+            "Name": "Scouting"
+        },
+        {
+            "id": 11,
+            "Name": "Insight"
+        },
+        {
+            "id": 12,
+            "Name": "Intimidation"
+        },
+        {
+            "id": 13,
+            "Name": "Persuasion"
+        }
+    ],
     "Armors": [
         {
             "id": 0,

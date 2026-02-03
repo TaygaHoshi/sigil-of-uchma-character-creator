@@ -30,7 +30,7 @@
 
                 <i>Sigil of Uchma</i> is an open source work-in-progress fantasy tabletop role playing game based on mythologies of medieval Central Asian societies.<br /><br />
 
-                Rules of the game are described in <a href="https://sigil-test.tyghsh.cc" target="_blank" rel="noopener noreferrer">the website</a>.
+                Rules of the game are described in <a href="https://sigil-test.tyghsh.cc" target="_blank" rel="noopener noreferrer">the website</a>. Please note this website follows the development version of the game.
 
                 You can find more detail about creating a character from
                     <a href="https://sigil-test.tyghsh.cc/sigil-of-uchma/content/player-characters.html" target="_blank" rel="noopener noreferrer">the character creation page</a>
@@ -55,6 +55,14 @@
             <div class="row mb-4">
                 <label for="name_selection" class="form-label">Character Name:</label>
                 <input id="name_selection" class="form-control w-75" min="1" max="10" type="text">
+            </div>
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <button id="name_generate_button" class="btn btn-outline-secondary" type="button">Generate a Name</button>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="name_first_only_checkbox">
+                    <label class="form-check-label" for="name_first_only_checkbox">First name only</label>
+                </div>
             </div>
 
             <div class="row mb-4">
@@ -281,6 +289,27 @@
                         <option value="Evasion">Evasion</option>
                     </select>
                 </div>
+            </div>
+
+            <hr class="row">
+            <h4 class="mb-2 ms-2 w-100">Skills</h4>
+
+            <div class="mb-4">
+                Skills are miscellaneous abilities of a character, such as being able to hunt more efficiently or identify a plant.
+                    They are explained <a href="https://sigil-test.tyghsh.cc/sigil-of-uchma/content/skills.html" target="_blank" rel="noopener noreferrer">in the relevant page</a>.<br /><br />
+
+                Similar to resistances, you can choose to focus on two skills as your major skills. 
+                    Your character will be well-versed in these, and will succeed more often in the skill rolls concerning your major skills.
+            </div>
+
+            <div class="row mb-4 w-50" id="skill_selection_main">
+                <label class="form-label">Choose your major skills:</label>
+                <select id="skill_selection_1" class="form-control mb-2">
+                    <option value="">Loading...</option>
+                </select>
+                <select id="skill_selection_2" class="form-control mb-2">
+                    <option value="">Loading...</option>
+                </select>
             </div>
 
             <br class="mb-4" />

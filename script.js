@@ -28,6 +28,16 @@ async function readCommon() {
   }
 }
 
+async function readNames() {
+  try {
+    const response = await fetch('names.json');
+    return await response.json();
+  } catch (err) {
+    console.error('Error loading names.json:', err);
+    throw err;
+  }
+}
+
 function populateClass(selectElement, classes) {
   if (!classes) {
     selectElement.innerHTML = '<option value="">An error has occurred.</option>';;
@@ -57,6 +67,23 @@ function populateArmor(selectElement, commonData) {
     const opt = document.createElement('option');
     opt.value = armorObject.id;
     opt.textContent = armorObject.Name;
+    selectElement.appendChild(opt);
+  });
+  return true;
+}
+
+function populateSkill(selectElement, commonData) {
+  if (!commonData) {
+    selectElement.innerHTML = '<option value="">An error has occurred.</option>';
+    return false;
+  }
+
+  selectElement.innerHTML = '<option value="not_selected">Not selected</option>';
+
+  commonData.Skills.forEach(skillObject => {
+    const opt = document.createElement('option');
+    opt.value = skillObject.id;
+    opt.textContent = skillObject.Name;
     selectElement.appendChild(opt);
   });
   return true;
@@ -308,9 +335,12 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
   const myPaths = await readPaths();
   const myBranches = await readBranches();
   const myCommon = await readCommon();
+  const myNames = await readNames();
 
   const characterNameSelectElement = document.getElementById("name_selection");
   const playerNameSelectElement = document.getElementById("player_name_selection");
+  const nameGenerateButton = document.getElementById("name_generate_button");
+  const nameFirstOnlyCheckbox = document.getElementById("name_first_only_checkbox");
 
   const levelSelectElement = document.getElementById("level_selection");
   const levelDecrementButton = document.getElementById("level_decrement");
@@ -337,6 +367,10 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
   const pathPetDamageTypeDivElement = document.getElementById("path_pet_damage_type_selection_main");
   const branchPetDamageTypeDivElement = document.getElementById("branch_pet_damage_type_selection_main");
 
+  const skillSelectionContainer = document.getElementById("skill_selection_main");
+  const skillSelectElement1 = document.getElementById("skill_selection_1");
+  const skillSelectElement2 = document.getElementById("skill_selection_2");
+
   // populate paths and branches
   populateClass(pathSelectElement, myPaths);
   populateClass(branchSelectElement, myBranches);
@@ -344,6 +378,10 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
   // populate armors
   const armorSelectElement = document.getElementById("armor_selection");
   populateArmor(armorSelectElement, myCommon);
+
+  // populate skills
+  populateSkill(skillSelectElement1, myCommon);
+  populateSkill(skillSelectElement2, myCommon);
 
   // populate weapon set 1
   const mainWeapon1SelectElement = document.getElementById("main_hand_weapon_1");
@@ -416,6 +454,30 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
 
   controlDecrementButton.addEventListener('click', () => adjustNumericInput(controlSelectElement, -1));
   controlIncrementButton.addEventListener('click', () => adjustNumericInput(controlSelectElement, 1));
+
+  // name generator
+  if (nameGenerateButton) {
+    nameGenerateButton.addEventListener('click', () => {
+      const firstNames = myNames?.Names?.First;
+      const lastNames = myNames?.Names?.Last;
+
+      if (!Array.isArray(firstNames) || !Array.isArray(lastNames) || firstNames.length === 0 || lastNames.length === 0) {
+        return;
+      }
+
+      const first = firstNames[Math.floor(Math.random() * firstNames.length)];
+      if (nameFirstOnlyCheckbox?.checked) {
+        characterNameSelectElement.value = first;
+        return;
+      }
+
+      const last = lastNames[Math.floor(Math.random() * lastNames.length)];
+      characterNameSelectElement.value = `${first} ${last}`.trim();
+    });
+  }
+
+  // skill constraint
+  skillSelectionContainer.addEventListener('change', () => enforceExclusive(skillSelectionContainer));
 
   // populate path techniques once selected
   pathSelectElement.addEventListener('change', () => {
@@ -528,6 +590,12 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
       minor3ResistanceSelectElement.value,
     ];
 
+    // get skills
+    const mySkills = [
+      skillSelectElement1.value,
+      skillSelectElement2.value
+    ].filter(v => v !== "not_selected");
+
     // Gather all chosen techniques (ignore “not_selected”)
     const pathTechniqueSelectors = Array.from(
       pathTechniqueSelectElement.querySelectorAll('select[id*="_selection_"]')
@@ -584,6 +652,7 @@ globalThis.addEventListener('DOMContentLoaded', async () => {
       level: Number.parseInt(levelSelectElement.value),
       potency: potencySelectElement.value,
       control: controlSelectElement.value,
+      skills: mySkills,
       majorResistance: myMajor,
       minorResistances: myMinors,
       armor: myArmor,

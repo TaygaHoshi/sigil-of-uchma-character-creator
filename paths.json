@@ -112,7 +112,7 @@
         ]
     },
 
-    "Bard": {
+    "Poet": {
         "Health": 70,
         "Techniques": [
             {"id": 0, "Name":"Song of Beauty"},

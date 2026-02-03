@@ -91,7 +91,7 @@
             }
         ]
     },
-    "Druid": {
+    "Attuner": {
         "Techniques": [
             {"id": 0, "Name":"Cycle of Cultivation", "Starter":false},
             {"id": 1, "Name":"Elemental Armor"},
