@@ -139,7 +139,7 @@
         },
         {
             "id": 2,
-            "Name": "Two-handed sword",
+            "Name": "Long-grip sword",
             "Type": "two_hand",
             "Precision": 1,
             "isLight": false,
@@ -187,7 +187,7 @@
         },
         {
             "id": 6,
-            "Name": "Longbow",
+            "Name": "Recurve bow",
             "Type": "two_hand",
             "Precision": 0,
             "isLight": false,
@@ -199,7 +199,7 @@
         },
         {
             "id": 7,
-            "Name": "Shortbow",
+            "Name": "Reflex bow",
             "Type": "two_hand",
             "Precision": 1,
             "isLight": false,
@@ -247,7 +247,7 @@
         },
         {
             "id": 11,
-            "Name": "Curved Sword",
+            "Name": "Cavalry Sword",
             "Type": "one_hand",
             "Precision": 1,
             "isLight": false,
@@ -259,7 +259,7 @@
         },
         {
             "id": 12,
-            "Name": "Throwing Spear",
+            "Name": "Javelin",
             "Type": "one_hand",
             "Precision": 0,
             "isLight": false,
