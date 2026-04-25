@@ -1,2 +1,4 @@
 # Sigil of Uchma Character Creator
-A static website for creating characters for the tabletop RPG Sigil of Uchma. 
+A static website for creating characters for the tabletop RPG Sigil of Uchma.
+
+[Check out Sigil of Uchma here](https://sigil-test.tyghsh.cc/)
