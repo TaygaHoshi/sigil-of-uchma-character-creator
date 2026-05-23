@@ -258,7 +258,7 @@ function prepareResistance(base, name, major, minors) {
 function displayCharacter(characterData, pathData, branchData, commonData) {
 
     // Populate page with characterData
-    document.getElementById('page_title').innerHTML = characterData.name + " - Sigil of Uchma Character Creator";
+    document.getElementById('page_title').textContent = characterData.name + " - Sigil of Uchma Character Creator";
     document.getElementById('characterPlayerName').textContent = characterData.playerName;
     document.getElementById('characterName').textContent = characterData.name;
 
@@ -330,14 +330,24 @@ function displayCharacter(characterData, pathData, branchData, commonData) {
         document.getElementById('characterPathPet').hidden = false;
         document.getElementById('characterPetsHeader').hidden = false;
 
-        document.getElementById('characterPathPet').innerHTML = "<td colspan='4'>" + characterData.pathPet + "</td>";
+        const pathPetCell = document.createElement('td');
+        pathPetCell.colSpan = 4;
+        pathPetCell.textContent = characterData.pathPet;
+        const pathPetRow = document.getElementById('characterPathPet');
+        pathPetRow.innerHTML = '';
+        pathPetRow.appendChild(pathPetCell);
     }
 
     if (characterData.branchPet && characterData.branchPet !== "not_selected") {
         document.getElementById('characterBranchPet').hidden = false;
         document.getElementById('characterPetsHeader').hidden = false;
 
-        document.getElementById('characterBranchPet').innerHTML = "<td colspan='4'>" + characterData.branchPet + "</td>";
+        const branchPetCell = document.createElement('td');
+        branchPetCell.colSpan = 4;
+        branchPetCell.textContent = characterData.branchPet;
+        const branchPetRow = document.getElementById('characterBranchPet');
+        branchPetRow.innerHTML = '';
+        branchPetRow.appendChild(branchPetCell);
     }
 
 }

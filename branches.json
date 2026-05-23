@@ -9,7 +9,8 @@
             {"id": 6, "Name":"Pounce"},
             {"id": 7, "Name":"Rush"},
             {"id": 8, "Name":"Savagery"},
-            {"id": 9, "Name":"Sweeping Attack"}
+            {"id": 9, "Name":"Sweeping Attack"},
+            {"id": 5, "Name":"Take Opportunity"}
         ],
         "Abilities": [
             {
@@ -46,10 +47,12 @@
             {"id": 0, "Name":"Adapt to Elevation"},
             {"id": 1, "Name":"Adapt to Formation"},
             {"id": 2, "Name":"Adapt to Terrain"},
+            {"id": 4, "Name":"Call Out"},
             {"id": 3, "Name":"Focused Defense"},
             {"id": 5, "Name":"Expose Weakness"},
             {"id": 6, "Name":"Improved Maneuvering"},
             {"id": 7, "Name":"Inspect"},
+            {"id": 9, "Name":"Plan Ahead"},
             {"id": 8, "Name":"Rally"}
         ],
         "Abilities": [
